@@ -158,12 +158,6 @@
         const resultsCount = document.getElementById('resultsCount');
         const resetBtn = document.getElementById('resetBtn');
 
-        // 📁 Define your JSON filenames here:
-const jsonFiles = [
-    'NEETPG_2025_ROUND1.json',
-    'NEETPG_2025_ROUND2.json',
-    'NEETPG_2024_ROUND1.json'
-];
         // Fetch ALL JSON files in parallel and combine them into one dataset
         Promise.all(
             jsonFiles.map(file => 
