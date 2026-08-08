@@ -148,9 +148,14 @@
         const resultsCount = document.getElementById('resultsCount');
         const resetBtn = document.getElementById('resetBtn');
 
-        // Fetch JSON File
+      // Fetch JSON File with detailed error catching
         fetch('./neet_pg_cutoffs.json')
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error(`HTTP error! Status: ${res.status}`);
+                }
+                return res.json();
+            })
             .then(data => {
                 allData = data;
                 populateDynamicDropdowns(allData);
@@ -158,7 +163,8 @@
             })
             .catch(err => {
                 console.error('Error loading JSON:', err);
-                tableBody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-red-500 font-semibold">Error loading data. Check if neet_pg_cutoffs.json is uploaded in the root folder.</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-red-500 font-semibold">Error: ${err.message}. Check if neet_pg_cutoffs.json is named correctly in GitHub.</td></tr>`;
+                resultsCount.innerText = 'Failed to load data';
             });
 
         // Automatically populate all dropdown options
