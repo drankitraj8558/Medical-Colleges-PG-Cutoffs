@@ -25,7 +25,7 @@
             <!-- Dual Search Section: Rank + College/Specialty -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 
-                <!-- Rank Input (New Core Feature) -->
+                <!-- Rank Input -->
                 <div class="md:col-span-1">
                     <label for="rankInput" class="block text-sm font-bold text-indigo-900 mb-1">🎯 Enter Your Rank</label>
                     <input type="number" id="rankInput" placeholder="e.g. 2500" 
@@ -97,7 +97,7 @@
 
             <!-- Footer Controls -->
             <div class="mt-6 flex flex-wrap items-center justify-between gap-4 border-t pt-4 border-slate-100">
-                <span id="resultsCount" class="text-sm font-medium text-slate-600">Loading counseling data...</span>
+                <span id="resultsCount" class="text-sm font-medium text-slate-600">Loading counseling datasets...</span>
                 <button id="resetBtn" class="text-sm text-indigo-600 hover:text-indigo-800 font-semibold underline cursor-pointer">
                     Reset All Filters
                 </button>
@@ -122,7 +122,7 @@
                     </thead>
                     <tbody id="tableBody" class="divide-y divide-slate-200 text-sm text-slate-700">
                         <tr>
-                            <td colspan="7" class="py-8 text-center text-slate-500">Loading dataset, please wait...</td>
+                            <td colspan="7" class="py-8 text-center text-slate-500">Loading datasets, please wait...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -133,6 +133,16 @@
 
     <!-- JavaScript Logic -->
     <script>
+        // ============================================================
+        // 📁 LIST ALL YOUR JSON FILE NAMES HERE:
+        // Simply add new JSON filenames into this array whenever you upload them to GitHub!
+        // ============================================================
+        const jsonFiles = [
+            'NEETPG_2025_ROUND1.json',
+            'NEETPG_2025_ROUND2.json',
+            'NEETPG_2024_ROUND1.json'
+        ];
+
         let allData = [];
 
         // DOM References
@@ -148,24 +158,42 @@
         const resultsCount = document.getElementById('resultsCount');
         const resetBtn = document.getElementById('resetBtn');
 
-      // Fetch JSON File with detailed error catching
-        fetch('./neet_pg_cutoffs.json')
-            .then(res => {
-                if (!res.ok) {
-                    throw new Error(`HTTP error! Status: ${res.status}`);
-                }
-                return res.json();
-            })
-            .then(data => {
-                allData = data;
-                populateDynamicDropdowns(allData);
-                filterAndRender();
-            })
-            .catch(err => {
-                console.error('Error loading JSON:', err);
-                tableBody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-red-500 font-semibold">Error: ${err.message}. Check if neet_pg_cutoffs.json is named correctly in GitHub.</td></tr>`;
-                resultsCount.innerText = 'Failed to load data';
-            });
+        // 📁 Define your JSON filenames here:
+const jsonFiles = [
+    'NEETPG_2025_ROUND1.json',
+    'NEETPG_2025_ROUND2.json',
+    'NEETPG_2024_ROUND1.json'
+];
+        // Fetch ALL JSON files in parallel and combine them into one dataset
+        Promise.all(
+            jsonFiles.map(file => 
+                fetch(`./${file}`)
+                    .then(res => {
+                        if (!res.ok) {
+                            console.warn(`File not found or failed to load: ${file}`);
+                            return [];
+                        }
+                        return res.json();
+                    })
+                    .catch(err => {
+                        console.error(`Error reading ${file}:`, err);
+                        return [];
+                    })
+            )
+        )
+        .then(datasets => {
+            // Flatten all loaded datasets into a single array
+            allData = datasets.flat();
+
+            if (allData.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-red-500 font-semibold">No data loaded. Check if the JSON filenames in index.html match your uploaded GitHub files.</td></tr>`;
+                resultsCount.innerText = 'Failed to load datasets';
+                return;
+            }
+
+            populateDynamicDropdowns(allData);
+            filterAndRender();
+        });
 
         // Automatically populate all dropdown options
         function populateDynamicDropdowns(data) {
@@ -211,7 +239,6 @@
             const selectedCourse = courseFilter.value;
 
             const filtered = allData.filter(item => {
-                // Rank logic: If user enters a rank, show options where their rank is <= Closing_Rank
                 const matchesRank = isNaN(userRank) || (item.Closing_Rank && userRank <= item.Closing_Rank);
 
                 const matchesSearch = !searchVal || 
