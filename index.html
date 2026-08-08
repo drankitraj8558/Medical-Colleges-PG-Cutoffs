@@ -149,7 +149,7 @@
         const resetBtn = document.getElementById('resetBtn');
 
         // Fetch JSON File
-        fetch('neet_pg_cutoffs.json')
+        fetch('./neet_pg_cutoffs.json')
             .then(res => res.json())
             .then(data => {
                 allData = data;
