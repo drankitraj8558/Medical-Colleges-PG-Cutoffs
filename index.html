@@ -134,13 +134,13 @@
     <!-- JavaScript Logic -->
     <script>
         // ============================================================
-        // 📁 LIST ALL YOUR JSON FILE NAMES HERE:
-        // Simply add new JSON filenames into this array whenever you upload them to GitHub!
+        // 📁 EDIT THIS LIST WHEN YOU UPLOAD NEW JSON FILES TO GITHUB!
+        // Make sure exact casing and extensions match your GitHub files.
         // ============================================================
         const jsonFiles = [
+            'NEETPG_2024_ROUND1.json',
             'NEETPG_2025_ROUND1.json',
-            'NEETPG_2025_ROUND2.json',
-            'NEETPG_2024_ROUND1.json'
+            'NEETPG_2025_ROUND2.json'
         ];
 
         let allData = [];
@@ -176,20 +176,24 @@
             )
         )
         .then(datasets => {
-            // Flatten all loaded datasets into a single array
+            // Flatten all successfully loaded datasets into a single array
             allData = datasets.flat();
 
             if (allData.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-red-500 font-semibold">No data loaded. Check if the JSON filenames in index.html match your uploaded GitHub files.</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-red-500 font-semibold">No data loaded. Please check that your JSON filenames in index.html match your uploaded GitHub files exactly.</td></tr>`;
                 resultsCount.innerText = 'Failed to load datasets';
                 return;
             }
 
             populateDynamicDropdowns(allData);
             filterAndRender();
+        })
+        .catch(err => {
+            console.error('Fatal error initializing data:', err);
+            tableBody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-red-500 font-semibold">Error loading datasets.</td></tr>`;
         });
 
-        // Automatically populate all dropdown options
+        // Automatically populate all dropdown options from dataset values
         function populateDynamicDropdowns(data) {
             const exams = new Set();
             const years = new Set();
@@ -199,15 +203,19 @@
             const courses = new Set();
 
             data.forEach(item => {
-                if (item.Exam) exams.add(item.Exam);
-                if (item.Year) years.add(item.Year);
-                if (item.Round) rounds.add(item.Round);
-                if (item.Allotted_Quota) quotas.add(item.Allotted_Quota);
-                if (item.Allotted_Category) categories.add(item.Allotted_Category);
-                if (item.Course) courses.add(item.Course);
+                if (item.Exam) exams.add(String(item.Exam));
+                if (item.Year) years.add(String(item.Year));
+                if (item.Round) rounds.add(String(item.Round));
+                if (item.Allotted_Quota) quotas.add(String(item.Allotted_Quota));
+                if (item.Allotted_Category) categories.add(String(item.Allotted_Category));
+                if (item.Course) courses.add(String(item.Course));
             });
 
             const fillSelect = (selectElem, setValues) => {
+                // Clear existing options except default
+                const defaultOption = selectElem.options[0].outerHTML;
+                selectElem.innerHTML = defaultOption;
+
                 Array.from(setValues).sort().forEach(val => {
                     selectElem.innerHTML += `<option value="${val}">${val}</option>`;
                 });
@@ -221,7 +229,7 @@
             fillSelect(courseFilter, courses);
         }
 
-        // Filtering Function
+        // Main Filtering Logic
         function filterAndRender() {
             const userRank = parseInt(rankInput.value);
             const searchVal = searchInput.value.toLowerCase().trim();
@@ -233,6 +241,7 @@
             const selectedCourse = courseFilter.value;
 
             const filtered = allData.filter(item => {
+                // User rank match: Show entries where closing rank is >= user rank
                 const matchesRank = isNaN(userRank) || (item.Closing_Rank && userRank <= item.Closing_Rank);
 
                 const matchesSearch = !searchVal || 
@@ -241,10 +250,10 @@
 
                 const matchesExam = !selectedExam || String(item.Exam) === selectedExam;
                 const matchesYear = !selectedYear || String(item.Year) === selectedYear;
-                const matchesRound = !selectedRound || item.Round === selectedRound;
-                const matchesQuota = !selectedQuota || item.Allotted_Quota === selectedQuota;
-                const matchesCategory = !selectedCategory || item.Allotted_Category === selectedCategory;
-                const matchesCourse = !selectedCourse || item.Course === selectedCourse;
+                const matchesRound = !selectedRound || String(item.Round) === selectedRound;
+                const matchesQuota = !selectedQuota || String(item.Allotted_Quota) === selectedQuota;
+                const matchesCategory = !selectedCategory || String(item.Allotted_Category) === selectedCategory;
+                const matchesCourse = !selectedCourse || String(item.Course) === selectedCourse;
 
                 return matchesRank && matchesSearch && matchesExam && matchesYear && matchesRound && matchesQuota && matchesCategory && matchesCourse;
             });
@@ -252,10 +261,10 @@
             renderTable(filtered);
         }
 
-        // Table Renderer
+        // Table Rendering Function (Limited to top 200 for fast browser rendering)
         function renderTable(data) {
             if (data.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-500">No matching cutoffs found for your rank and filters. Try expanding your search.</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-500">No matching cutoffs found for your rank and filters. Try adjusting your search.</td></tr>`;
                 resultsCount.innerText = 'Found 0 results';
                 return;
             }
@@ -269,7 +278,7 @@
                     <tr class="hover:bg-slate-50 transition-colors">
                         <td class="py-3 px-4 sm:px-6">
                             <span class="font-bold text-slate-800">${item.Exam || 'NEET PG'}</span>
-                            <span class="block text-xs text-slate-500">${item.Year || '2025'}</span>
+                            <span class="block text-xs text-slate-500">${item.Year || 'N/A'}</span>
                         </td>
                         <td class="py-3 px-4 sm:px-6 text-xs font-semibold text-slate-600">${item.Round || 'Round 1'}</td>
                         <td class="py-3 px-4 sm:px-6 font-medium text-slate-900">${item.Allotted_Institute || 'N/A'}</td>
@@ -290,12 +299,13 @@
                 : `Showing all ${data.length.toLocaleString()} eligible cutoffs`;
         }
 
-        // Listeners
+        // Attach Input & Change Listeners
         [rankInput, searchInput, examFilter, yearFilter, roundFilter, quotaFilter, categoryFilter, courseFilter].forEach(elem => {
             elem.addEventListener('input', filterAndRender);
             elem.addEventListener('change', filterAndRender);
         });
 
+        // Reset Button Handler
         resetBtn.addEventListener('click', () => {
             rankInput.value = '';
             searchInput.value = '';
