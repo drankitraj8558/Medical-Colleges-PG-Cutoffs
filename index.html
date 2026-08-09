@@ -30,7 +30,7 @@
                     <label for="rankInput" class="block text-sm font-bold text-indigo-900 mb-1">🎯 Enter Your Rank</label>
                     <input type="number" id="rankInput" placeholder="e.g. 2000" 
                            class="w-full p-3 border-2 border-indigo-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-900 font-bold text-lg bg-indigo-50/30">
-                    <span class="text-xs text-slate-500 mt-1 block">Type a rank to reveal its specific allotment & eligible seats</span>
+                    <span class="text-xs text-slate-500 mt-1 block">Highlights direct cutoff range matches & shows eligible options</span>
                 </div>
 
                 <!-- Text Search Input -->
@@ -108,19 +108,6 @@
 
         </div>
 
-        <!-- 🎯 Dynamic Allotment Summary Card (Appears when Rank is entered) -->
-        <div id="rankSummaryCard" class="hidden mb-6 bg-gradient-to-r from-emerald-600 to-teal-700 text-white rounded-xl shadow-lg p-6 transition-all duration-300">
-            <div class="flex items-center justify-between border-b border-emerald-400/30 pb-3 mb-4">
-                <h3 class="text-lg font-bold flex items-center gap-2">
-                    <span>🏆</span> <span id="summaryTitle">Allotment Summary for Rank</span>
-                </h3>
-                <span class="text-xs bg-emerald-800/60 px-3 py-1 rounded-full font-medium">Exact Range Details</span>
-            </div>
-            <div id="summaryContent" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <!-- Content injected via JS -->
-            </div>
-        </div>
-
         <!-- Dynamic Results Table -->
         <div class="bg-white rounded-xl shadow-md overflow-hidden border border-slate-200">
             <div class="overflow-x-auto">
@@ -134,11 +121,12 @@
                             <th class="py-4 px-4 sm:px-6">Quota & Category</th>
                             <th class="py-4 px-4 sm:px-6 text-emerald-400 font-bold">Opening Rank</th>
                             <th class="py-4 px-4 sm:px-6 text-rose-400 font-bold">Closing Rank</th>
+                            <th class="py-4 px-4 sm:px-6 text-indigo-300 font-bold">Total Seats</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody" class="divide-y divide-slate-200 text-sm text-slate-700">
                         <tr>
-                            <td colspan="7" class="py-8 text-center text-slate-500">Loading datasets, please wait...</td>
+                            <td colspan="8" class="py-8 text-center text-slate-500">Loading datasets, please wait...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -149,6 +137,9 @@
 
     <!-- JavaScript Logic -->
     <script>
+        // ============================================================
+        // 📁 EDIT THIS LIST WHEN YOU UPLOAD NEW JSON FILES TO GITHUB!
+        // ============================================================
         const jsonFiles = [
             'NEETPG_2024_ROUND1.json',
             'NEETPG_2024_ROUND2.json',
@@ -177,30 +168,43 @@
         const tableBody = document.getElementById('tableBody');
         const resultsCount = document.getElementById('resultsCount');
         const resetBtn = document.getElementById('resetBtn');
-        const rankSummaryCard = document.getElementById('rankSummaryCard');
-        const summaryTitle = document.getElementById('summaryTitle');
-        const summaryContent = document.getElementById('summaryContent');
 
-        // Fetch datasets
+        // Fetch ALL JSON files in parallel
         Promise.all(
             jsonFiles.map(file => 
                 fetch(`./${file}`)
                     .then(res => res.ok ? res.json() : [])
-                    .catch(() => [])
+                    .catch(err => {
+                        console.error(`Error reading ${file}:`, err);
+                        return [];
+                    })
             )
         )
         .then(datasets => {
             allData = datasets.flat();
+
             if (allData.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-red-500 font-semibold">No data loaded. Check if JSON filenames match your uploaded files.</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="8" class="py-8 text-center text-red-500 font-semibold">No data loaded. Check if JSON filenames match your uploaded files.</td></tr>`;
+                resultsCount.innerText = 'Failed to load datasets';
                 return;
             }
+
             populateDynamicDropdowns(allData);
             filterAndRender();
+        })
+        .catch(err => {
+            console.error('Fatal error initializing data:', err);
+            tableBody.innerHTML = `<tr><td colspan="8" class="py-8 text-center text-red-500 font-semibold">Error loading datasets.</td></tr>`;
         });
 
+        // Populate dropdown options & build course search list
         function populateDynamicDropdowns(data) {
-            const exams = new Set(), years = new Set(), rounds = new Set(), quotas = new Set(), categories = new Set(), courses = new Set();
+            const exams = new Set();
+            const years = new Set();
+            const rounds = new Set();
+            const quotas = new Set();
+            const categories = new Set();
+            const courses = new Set();
 
             data.forEach(item => {
                 if (item.Exam) exams.add(String(item.Exam));
@@ -228,7 +232,7 @@
             allCoursesList = Array.from(courses).sort();
         }
 
-        // --- Searchable Course Dropdown ---
+        // --- Searchable Course Dropdown Logic ---
         function renderCourseDropdown(filterText = "") {
             const query = filterText.toLowerCase().trim();
             const matches = allCoursesList.filter(c => c.toLowerCase().includes(query));
@@ -267,7 +271,7 @@
             if (!courseWrapper.contains(e.target) && !courseDropdown.contains(e.target)) courseDropdown.classList.add('hidden');
         });
 
-        // --- Main Filtering & Exact Rank Display Logic ---
+        // Main Filtering Logic
         function filterAndRender() {
             const userRank = parseInt(rankInput.value);
             const searchVal = searchInput.value.toLowerCase().trim();
@@ -277,13 +281,6 @@
             const selectedQuota = quotaFilter.value;
             const selectedCategory = categoryFilter.value;
             const selectedCourse = selectedCourseValue.toLowerCase().trim();
-
-            // Render Exact Rank Summary Banner
-            if (!isNaN(userRank)) {
-                renderRankSummary(userRank, selectedExam, selectedYear, selectedRound, selectedCategory, selectedQuota);
-            } else {
-                rankSummaryCard.classList.add('hidden');
-            }
 
             const filtered = allData.filter(item => {
                 const matchesRank = isNaN(userRank) || (item.Closing_Rank && userRank <= item.Closing_Rank);
@@ -305,59 +302,12 @@
             renderTable(filtered);
         }
 
-        // Render Top Allotment Summary Card
-        function renderRankSummary(rank, exam, year, round, category, quota) {
-            summaryTitle.innerText = `What Rank ${rank.toLocaleString()} Got (Exact / Near Range Matches)`;
-
-            // Find entries where the rank sits inside Opening and Closing range
-            const exactMatches = allData.filter(item => {
-                const rankFits = item.Opening_Rank && item.Closing_Rank && rank >= item.Opening_Rank && rank <= item.Closing_Rank;
-                const matchesExam = !exam || String(item.Exam) === exam;
-                const matchesYear = !year || String(item.Year) === year;
-                const matchesRound = !round || String(item.Round) === round;
-                const matchesCategory = !category || String(item.Allotted_Category) === category;
-                const matchesQuota = !quota || String(item.Allotted_Quota) === quota;
-
-                return rankFits && matchesExam && matchesYear && matchesRound && matchesCategory && matchesQuota;
-            });
-
-            if (exactMatches.length === 0) {
-                summaryContent.innerHTML = `
-                    <div class="col-span-full bg-emerald-800/40 p-4 rounded-lg text-sm text-emerald-100">
-                        No direct match found where Rank <strong>${rank.toLocaleString()}</strong> sits inside an Opening–Closing cutoff interval for the selected filters. Check the table below for all eligible options!
-                    </div>
-                `;
-            } else {
-                let html = '';
-                // Limit to top 6 summary cards
-                exactMatches.slice(0, 6).forEach(item => {
-                    html += `
-                        <div class="bg-white/10 backdrop-blur-md p-4 rounded-lg border border-white/20">
-                            <div class="flex items-center justify-between text-xs text-emerald-200 font-semibold mb-1">
-                                <span>${item.Exam} ${item.Year} (${item.Round})</span>
-                                <span class="bg-emerald-800/80 px-2 py-0.5 rounded text-white">${item.Allotted_Category}</span>
-                            </div>
-                            <div class="font-bold text-white text-sm mb-1">${item.Course}</div>
-                            <div class="text-xs text-emerald-100 mb-2 truncate" title="${item.Allotted_Institute}">${item.Allotted_Institute}</div>
-                            <div class="text-[11px] text-emerald-200 border-t border-white/10 pt-2 flex justify-between">
-                                <span>Cutoff Range: <strong>${item.Opening_Rank.toLocaleString()} - ${item.Closing_Rank.toLocaleString()}</strong></span>
-                                <span>Seats: ${item.Total_Seats || 'N/A'}</span>
-                            </div>
-                        </div>
-                    `;
-                });
-                summaryContent.innerHTML = html;
-            }
-
-            rankSummaryCard.classList.remove('hidden');
-        }
-
         // Table Renderer
         function renderTable(data) {
             const userRank = parseInt(rankInput.value);
 
             if (data.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-500">No matching cutoffs found for your rank and filters. Try adjusting your search.</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="8" class="py-8 text-center text-slate-500">No matching cutoffs found for your rank and filters. Try adjusting your search.</td></tr>`;
                 resultsCount.innerText = 'Found 0 results';
                 return;
             }
@@ -397,6 +347,7 @@
                         </td>
                         <td class="py-3 px-4 sm:px-6 font-bold text-emerald-600">${item.Opening_Rank ? item.Opening_Rank.toLocaleString() : 'N/A'}</td>
                         <td class="py-3 px-4 sm:px-6 font-bold text-rose-600">${item.Closing_Rank ? item.Closing_Rank.toLocaleString() : 'N/A'}</td>
+                        <td class="py-3 px-4 sm:px-6 font-bold text-indigo-700">${item.Total_Seats !== undefined ? item.Total_Seats.toLocaleString() : 'N/A'}</td>
                     </tr>
                 `;
             });
@@ -407,12 +358,13 @@
                 : `Showing all ${data.length.toLocaleString()} eligible cutoffs`;
         }
 
-        // Event Listeners
+        // Attach Event Listeners
         [rankInput, searchInput, examFilter, yearFilter, roundFilter, quotaFilter, categoryFilter].forEach(elem => {
             elem.addEventListener('input', filterAndRender);
             elem.addEventListener('change', filterAndRender);
         });
 
+        // Reset Button Handler
         resetBtn.addEventListener('click', () => {
             rankInput.value = '';
             searchInput.value = '';
@@ -423,7 +375,6 @@
             categoryFilter.value = '';
             selectedCourseValue = '';
             courseInput.value = '';
-            rankSummaryCard.classList.add('hidden');
             filterAndRender();
         });
     </script>
