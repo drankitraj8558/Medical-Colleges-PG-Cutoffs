@@ -148,33 +148,40 @@
 
     </main>
 
-    <!-- Password Auth Modal Overlay -->
+    <!-- OTP Auth Modal Overlay -->
     <div id="loginModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
         <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 relative">
             <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 font-bold text-lg cursor-pointer">&times;</button>
             
-            <!-- Auth Mode Switcher Tabs -->
-            <div class="flex border-b border-slate-200 mb-6">
-                <button id="tab-login" onclick="switchAuthTab('login')" class="w-1/2 py-2 text-center font-bold text-sm text-indigo-600 border-b-2 border-indigo-600 cursor-pointer">Login</button>
-                <button id="tab-signup" onclick="switchAuthTab('signup')" class="w-1/2 py-2 text-center font-bold text-sm text-slate-400 border-b-2 border-transparent cursor-pointer">Sign Up</button>
-            </div>
+            <h3 class="text-xl font-extrabold text-slate-900 mb-1">Portal Login & Verification</h3>
+            <p class="text-xs text-slate-500 mb-6">Enter your email address to receive a secure 6-digit login code (OTP).</p>
 
-            <div class="space-y-4">
+            <!-- Step 1: Enter Email -->
+            <div id="step-email-container" class="space-y-4">
                 <div>
                     <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Email Address</label>
                     <input type="email" id="auth-email-input" placeholder="name@example.com" class="w-full p-3 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500">
                 </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Password</label>
-                    <input type="password" id="auth-password-input" placeholder="••••••••" class="w-full p-3 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500">
-                </div>
-
-                <button id="auth-submit-btn" onclick="handlePasswordAuth()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-lg text-sm transition-colors shadow cursor-pointer">
-                    Login
+                <button onclick="sendOTPCode()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-lg text-sm transition-colors shadow cursor-pointer">
+                    Send 6-Digit OTP Code
                 </button>
-
-                <div id="auth-message" class="text-xs text-center font-medium mt-2 text-indigo-600"></div>
             </div>
+
+            <!-- Step 2: Enter OTP Code -->
+            <div id="step-otp-container" class="space-y-4 hidden">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Enter 6-Digit OTP Code</label>
+                    <input type="text" id="auth-otp-input" maxlength="6" placeholder="123456" class="w-full p-3 border border-slate-300 rounded-lg text-center tracking-widest text-lg font-bold focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <button onclick="verifyOTPCode()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg text-sm transition-colors shadow cursor-pointer">
+                    Verify Code & Login
+                </button>
+                <button onclick="resetToEmailStep()" class="w-full text-xs text-indigo-600 underline font-semibold text-center cursor-pointer block">
+                    Change Email / Resend
+                </button>
+            </div>
+
+            <div id="auth-message" class="text-xs text-center font-medium mt-3 text-indigo-600"></div>
         </div>
     </div>
 
@@ -193,7 +200,7 @@
             if (window.supabase && typeof window.supabase.createClient === 'function') {
                 supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
                     auth: {
-                        persistSession: true // Keeps user logged in on this browser!
+                        persistSession: true // Keeps user permanently logged in on this browser!
                     }
                 });
             }
@@ -202,27 +209,6 @@
         }
 
         window.userHasPaid = false;
-        let currentAuthMode = 'login'; // 'login' or 'signup'
-
-        // Switch between Login and Sign Up tab
-        window.switchAuthTab = function(mode) {
-            currentAuthMode = mode;
-            const loginTab = document.getElementById('tab-login');
-            const signupTab = document.getElementById('tab-signup');
-            const submitBtn = document.getElementById('auth-submit-btn');
-            const msg = document.getElementById('auth-message');
-            msg.innerText = '';
-
-            if (mode === 'login') {
-                loginTab.className = "w-1/2 py-2 text-center font-bold text-sm text-indigo-600 border-b-2 border-indigo-600 cursor-pointer";
-                signupTab.className = "w-1/2 py-2 text-center font-bold text-sm text-slate-400 border-b-2 border-transparent cursor-pointer";
-                submitBtn.innerText = "Login";
-            } else {
-                signupTab.className = "w-1/2 py-2 text-center font-bold text-sm text-indigo-600 border-b-2 border-indigo-600 cursor-pointer";
-                loginTab.className = "w-1/2 py-2 text-center font-bold text-sm text-slate-400 border-b-2 border-transparent cursor-pointer";
-                submitBtn.innerText = "Create Account";
-            }
-        };
 
         // --- AUTH & PAYMENT STATUS CHECK ---
         async function checkUserSession() {
@@ -271,59 +257,75 @@
             }
         }
 
-        // --- PASSWORD AUTHENTICATION (SIGNUP & LOGIN) ---
-        async function handlePasswordAuth() {
+        // --- STEP 1: SEND OTP CODE TO EMAIL ---
+        async function sendOTPCode() {
             if (!supabaseClient) return;
 
             const email = document.getElementById('auth-email-input').value.trim();
-            const password = document.getElementById('auth-password-input').value;
             const msg = document.getElementById('auth-message');
 
-            if (!email || !password) {
-                msg.innerText = "Please fill in both email and password.";
+            if (!email) {
+                msg.innerText = "Please enter a valid email address.";
                 return;
             }
 
-            if (password.length < 6) {
-                msg.innerText = "Password must be at least 6 characters.";
-                return;
-            }
-
-            msg.innerText = "Processing...";
+            msg.innerText = "Sending 6-digit code...";
 
             try {
-                if (currentAuthMode === 'signup') {
-                    // Sign Up User
-                    const { data, error } = await supabaseClient.auth.signUp({
-                        email: email,
-                        password: password
-                    });
+                const { error } = await supabaseClient.auth.signInWithOtp({
+                    email: email
+                });
 
-                    if (error) {
-                        msg.innerText = "Error: " + error.message;
-                    } else {
-                        msg.innerText = "🎉 Account created successfully! Logging you in...";
-                        closeLoginModal();
-                        checkUserSession();
-                    }
+                if (error) {
+                    msg.innerText = "Error: " + error.message;
                 } else {
-                    // Login User
-                    const { data, error } = await supabaseClient.auth.signInWithPassword({
-                        email: email,
-                        password: password
-                    });
-
-                    if (error) {
-                        msg.innerText = "Login failed: " + error.message;
-                    } else {
-                        msg.innerText = "Logged in!";
-                        closeLoginModal();
-                        checkUserSession();
-                    }
+                    msg.innerText = "📩 6-digit OTP code sent! Check your email inbox.";
+                    document.getElementById('step-email-container').classList.add('hidden');
+                    document.getElementById('step-otp-container').classList.remove('hidden');
                 }
             } catch (err) {
                 msg.innerText = "Auth error: " + err.message;
             }
+        }
+
+        // --- STEP 2: VERIFY OTP CODE ---
+        async function verifyOTPCode() {
+            if (!supabaseClient) return;
+
+            const email = document.getElementById('auth-email-input').value.trim();
+            const token = document.getElementById('auth-otp-input').value.trim();
+            const msg = document.getElementById('auth-message');
+
+            if (!token || token.length < 6) {
+                msg.innerText = "Please enter the full 6-digit code.";
+                return;
+            }
+
+            msg.innerText = "Verifying code...";
+
+            try {
+                const { data, error } = await supabaseClient.auth.verifyOtp({
+                    email: email,
+                    token: token,
+                    type: 'email'
+                });
+
+                if (error) {
+                    msg.innerText = "Verification failed: " + error.message;
+                } else {
+                    msg.innerText = "🎉 Logged in successfully!";
+                    closeLoginModal();
+                    checkUserSession();
+                }
+            } catch (err) {
+                msg.innerText = "Verification error: " + err.message;
+            }
+        }
+
+        function resetToEmailStep() {
+            document.getElementById('step-otp-container').classList.add('hidden');
+            document.getElementById('step-email-container').classList.remove('hidden');
+            document.getElementById('auth-message').innerText = '';
         }
 
         async function handleLogout() {
@@ -339,7 +341,7 @@
             const { data: { session } } = await supabaseClient.auth.getSession();
             
             if (!session) {
-                alert("Please log in or create an account first!");
+                alert("Please log in or verify your email first!");
                 openLoginModal();
                 return;
             }
