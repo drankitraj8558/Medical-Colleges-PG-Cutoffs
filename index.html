@@ -285,7 +285,7 @@
             location.reload();
         }
 
-        // --- RAZORPAY PAYMENT TRIGGER ---
+       // --- RAZORPAY PAYMENT TRIGGER ---
         async function triggerRazorpayPayment() {
             if (!supabaseClient) return;
 
@@ -302,12 +302,16 @@
 
             const options = {
                 "key": RAZORPAY_KEY_ID,
-                "amount": 1000, // 1000 paise = ₹10
+                "amount": 1000, // ₹10
                 "currency": "INR",
                 "name": "Medical PG Cutoff Portal",
                 "description": "1-Year Full Access (Buy Me a Chai ☕)",
                 "prefill": {
-                    "email": userEmail
+                    "email": userEmail,
+                    "contact": "" // Explicitly leaves contact empty so your number doesn't show!
+                },
+                "readonly": {
+                    "contact": false // Prevents locking contact fields
                 },
                 "theme": {
                     "color": "#4f46e5"
@@ -333,7 +337,6 @@
             const rzp = new Razorpay(options);
             rzp.open();
         }
-
         // Modal Controls
         window.openLoginModal = function() {
             const modal = document.getElementById('loginModal');
