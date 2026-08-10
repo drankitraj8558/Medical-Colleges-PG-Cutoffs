@@ -445,26 +445,29 @@ async function handleLogout() {
                 }
             }
         },
-        handler: async function (response) {
-            if (response.razorpay_payment_id) {
-                // Update Supabase
-                const { error } = await supabaseClient
-                    .from('profiles')
-                    .update({ 
-                        is_paid: true,
-                        razorpay_payment_id: response.razorpay_payment_id 
-                    })
-                    .eq('id', userId);
+    handler: async function (response) {
+    if (response.razorpay_payment_id) {
+        const { error } = await supabaseClient
+            .from('profiles')
+            .upsert({
+                id: userId,
+                is_paid: true,
+                razorpay_payment_id: response.razorpay_payment_id,
+                updated_at: new Date().toISOString()
+            }, {
+                onConflict: 'id'
+            });
 
-                if (error) {
-                    alert("Payment succeeded, but updating account failed.\nPayment ID: " + response.razorpay_payment_id + "\nPlease contact support.");
-                } else {
-                    alert("🎉 Payment Successful!\nFull portal access unlocked for 1 year.");
-                    window.userHasPaid = true;
-                    filterAndRender();
-                }
-            }
-        },
+        if (error) {
+            console.error("Supabase update error:", error);
+            alert("Payment succeeded, but updating account failed.\nPayment ID: " + response.razorpay_payment_id + "\nError: " + error.message);
+        } else {
+            alert("🎉 Payment Successful! Full portal access unlocked for 1 year.");
+            window.userHasPaid = true;
+            filterAndRender();
+        }
+    }
+}
         modal: {
             ondismiss: function() {
                 console.log("Payment modal closed");
