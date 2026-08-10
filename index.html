@@ -8,6 +8,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Supabase JS SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Razorpay Checkout SDK -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen">
 
@@ -167,22 +169,16 @@
     <!-- JavaScript Logic -->
     <script>
         // ============================================================
-        // 🔐 SUPABASE CONFIGURATION (PASTE YOUR ACTUAL LONG eyJ... KEY BELOW)
+        // 🔐 CONFIGURATION KEYS
         // ============================================================
         const SUPABASE_URL = 'https://udwlruggphsrauusyauc.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVkd2xydWdncGhzcmF1dXN5YXVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYyOTUzOTgsImV4cCI6MjEwMTg3MTM5OH0.VkKf_6G5b-3Ug5IPxuF8pq3N8bLBA-j9Jo-cy2JzCAE'; 
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVkd2xydWdncGhzcmF1dXN5YXVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYyOTUzOTgsImV4cCI6MjEwMTg3MTM5OH0.VkKf_6G5b-3Ug5IPxuF8pq3N8bLBA-j9Jo-cy2JzCAE'; // Replace with long eyJ... key
+        const RAZORPAY_KEY_ID = 'rzp_test_TNvIPuOMlItT28'; // Replace with Razorpay Key ID
 
-      
+        const supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+        window.userHasPaid = false;
 
-        try {
-            if (window.supabase && typeof window.supabase.createClient === 'function') {
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            }
-        } catch (e) {
-            console.error("Supabase initialization failed:", e);
-        }
-
-        // --- AUTH LOGIC ---
+        // --- AUTH & PAYMENT STATUS CHECK ---
         async function checkUserSession() {
             if (!supabase) return;
 
@@ -198,6 +194,8 @@
                     emailSpan.classList.remove('hidden');
 
                     document.getElementById('logout-btn').classList.remove('hidden');
+
+                    await checkPaymentStatus(session.user.id);
                 } else {
                     document.getElementById('login-btn').classList.remove('hidden');
                     document.getElementById('user-email').classList.add('hidden');
@@ -205,6 +203,23 @@
                 }
             } catch (err) {
                 console.error("Session check error:", err.message);
+            }
+        }
+
+        async function checkPaymentStatus(userId) {
+            try {
+                const { data, error } = await supabase
+                    .from('profiles')
+                    .select('is_paid')
+                    .eq('id', userId)
+                    .single();
+
+                if (data && data.is_paid) {
+                    window.userHasPaid = true;
+                    if (typeof filterAndRender === 'function') filterAndRender();
+                }
+            } catch (err) {
+                console.error("Error checking payment status:", err.message);
             }
         }
 
@@ -247,6 +262,56 @@
             location.reload();
         }
 
+        // --- RAZORPAY PAYMENT TRIGGER ---
+        async function triggerRazorpayPayment() {
+            if (!supabase) return;
+
+            const { data: { session } } = await supabase.auth.getSession();
+            
+            if (!session) {
+                alert("Please log in first so we can activate full access for your account!");
+                openLoginModal();
+                return;
+            }
+
+            const userEmail = session.user.email;
+            const userId = session.user.id;
+
+            const options = {
+                "key": RAZORPAY_KEY_ID,
+                "amount": 1000, // 1000 paise = ₹10
+                "currency": "INR",
+                "name": "Medical PG Cutoff Portal",
+                "description": "1-Year Full Access (Buy Me a Chai ☕)",
+                "prefill": {
+                    "email": userEmail
+                },
+                "theme": {
+                    "color": "#4f46e5"
+                },
+                "handler": async function (response) {
+                    if (response.razorpay_payment_id) {
+                        const { error } = await supabase
+                            .from('profiles')
+                            .update({ is_paid: true })
+                            .eq('id', userId);
+
+                        if (error) {
+                            alert("Payment succeeded, but updating account failed. Payment ID: " + response.razorpay_payment_id);
+                        } else {
+                            alert("🎉 Payment Successful! Full portal access unlocked for 1 year.");
+                            window.userHasPaid = true;
+                            filterAndRender();
+                        }
+                    }
+                }
+            };
+
+            const rzp = new Razorpay(options);
+            rzp.open();
+        }
+
+        // Modal Controls
         function openLoginModal() {
             document.getElementById('loginModal').classList.remove('hidden');
             document.getElementById('loginModal').classList.add('flex');
@@ -440,18 +505,32 @@
 
         function renderTable(data) {
             const userRank = parseInt(rankInput.value);
+            const totalMatches = data.length;
 
-            if (data.length === 0) {
+            if (totalMatches === 0) {
                 tableBody.innerHTML = `<tr><td colspan="8" class="py-8 text-center text-slate-500">No matching cutoffs found for your rank and filters. Try adjusting your search.</td></tr>`;
                 resultsCount.innerText = 'Found 0 results';
                 return;
             }
 
-            const limit = 200;
-            const subset = data.slice(0, limit);
+            // DYNAMIC PERCENTAGE PREVIEW: ~15% preview (min 3, max 25 rows)
+            let freePreviewCount = Math.ceil(totalMatches * 0.15);
+            if (freePreviewCount < 3) freePreviewCount = 3;
+            if (freePreviewCount > 25) freePreviewCount = 25;
+
+            const displayLimit = 200;
+            let displayData = data;
+            let isPaywalled = false;
+
+            if (!window.userHasPaid && totalMatches > freePreviewCount) {
+                displayData = data.slice(0, freePreviewCount);
+                isPaywalled = true;
+            } else {
+                displayData = data.slice(0, displayLimit);
+            }
 
             let rows = '';
-            subset.forEach(item => {
+            displayData.forEach(item => {
                 const isExactFit = !isNaN(userRank) && 
                                    item.Opening_Rank && item.Closing_Rank && 
                                    userRank >= item.Opening_Rank && userRank <= item.Closing_Rank;
@@ -487,10 +566,34 @@
                 `;
             });
 
+            // Friendly Chai Paywall Banner
+            if (isPaywalled) {
+                const hiddenCount = totalMatches - freePreviewCount;
+                rows += `
+                    <tr>
+                        <td colspan="8" class="py-10 text-center bg-slate-900/5 backdrop-blur-sm border-t-2 border-indigo-200">
+                            <div class="max-w-lg mx-auto bg-white p-6 rounded-2xl shadow-xl border border-indigo-100 space-y-3">
+                                <div class="text-3xl">☕</div>
+                                <h4 class="text-slate-900 font-extrabold text-lg">Buy me a Chai to unlock all remaining ${hiddenCount.toLocaleString()} cutoffs!</h4>
+                                <p class="text-xs text-slate-600 leading-relaxed">
+                                    This server runs on late-night coding and chai. We sorted through 50,000+ MCC & AIIMS allotment records so you don't have to scan 3,000-page PDFs. Unlock full search access and complete college lists for an entire year.
+                                </p>
+                                <div class="pt-2">
+                                    <button onclick="triggerRazorpayPayment()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold px-6 py-3 rounded-xl shadow-lg text-sm transition-transform active:scale-95 flex items-center justify-center gap-2 mx-auto cursor-pointer">
+                                        <span>🔓 Unlock Everything for ₹10</span>
+                                    </button>
+                                </div>
+                                <span class="text-[10px] text-slate-400 block">One-time payment • Valid for 1 Year</span>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }
+
             tableBody.innerHTML = rows;
-            resultsCount.innerText = data.length > limit 
-                ? `Showing first ${limit} of ${data.length.toLocaleString()} eligible cutoffs` 
-                : `Showing all ${data.length.toLocaleString()} eligible cutoffs`;
+            resultsCount.innerText = isPaywalled 
+                ? `Showing preview (${freePreviewCount} of ${totalMatches.toLocaleString()} results) — Login & Unlock for full list` 
+                : (totalMatches > displayLimit ? `Showing first ${displayLimit} of ${totalMatches.toLocaleString()} eligible cutoffs` : `Showing all ${totalMatches.toLocaleString()} eligible cutoffs`);
         }
 
         [rankInput, searchInput, examFilter, yearFilter, roundFilter, quotaFilter, categoryFilter].forEach(elem => {
