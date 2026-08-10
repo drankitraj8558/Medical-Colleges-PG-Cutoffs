@@ -164,38 +164,61 @@
         </div>
     </div>
 
-    <!-- JavaScript Logic -->
+<!-- JavaScript Logic -->
     <script>
         // ============================================================
-        // 🔐 SUPABASE CONFIGURATION (UPDATE WITH YOUR KEYS)
+        // 🔐 SUPABASE CONFIGURATION
         // ============================================================
         const SUPABASE_URL = 'https://udwlruggphsrauusyauc.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_4EGYOh9BxQm3F9z2UvTw7A_DDy2GnhR';
 
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let supabase = null;
 
-        // --- AUTH LOGIC ---
+        // Safe Supabase Initialization
+        try {
+            if (window.supabase && typeof window.supabase.createClient === 'function') {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            }
+        } catch (e) {
+            console.error("Supabase initialization failed:", e);
+        }
+
+        // --- AUTH LOGIC (Safe & Non-blocking) ---
         async function checkUserSession() {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session) {
-                document.getElementById('login-btn').classList.add('hidden');
-                
-                const emailSpan = document.getElementById('user-email');
-                emailSpan.innerText = session.user.email;
-                emailSpan.classList.remove('hidden');
+            if (!supabase) return;
 
-                document.getElementById('logout-btn').classList.remove('hidden');
-            } else {
-                document.getElementById('login-btn').classList.remove('hidden');
-                document.getElementById('user-email').classList.add('hidden');
-                document.getElementById('logout-btn').classList.add('hidden');
+            try {
+                const { data: { session }, error } = await supabase.auth.getSession();
+                if (error) throw error;
+
+                if (session) {
+                    document.getElementById('login-btn').classList.add('hidden');
+                    
+                    const emailSpan = document.getElementById('user-email');
+                    emailSpan.innerText = session.user.email;
+                    emailSpan.classList.remove('hidden');
+
+                    document.getElementById('logout-btn').classList.remove('hidden');
+                } else {
+                    document.getElementById('login-btn').classList.remove('hidden');
+                    document.getElementById('user-email').classList.add('hidden');
+                    document.getElementById('logout-btn').classList.add('hidden');
+                }
+            } catch (err) {
+                console.error("Session check error:", err.message);
             }
         }
 
         // Handle Magic Link Login
         async function handleEmailLogin() {
+            if (!supabase) {
+                alert("Supabase service is initializing. Please refresh and try again.");
+                return;
+            }
+
             const email = document.getElementById('auth-email-input').value.trim();
             const msg = document.getElementById('auth-message');
+            
             if (!email) {
                 msg.innerText = "Please enter a valid email address.";
                 return;
@@ -203,23 +226,27 @@
             
             msg.innerText = "Sending link...";
 
-            const { error } = await supabase.auth.signInWithOtp({ 
-                email: email,
-                options: {
-                    emailRedirectTo: window.location.href
-                }
-            });
+            try {
+                const { error } = await supabase.auth.signInWithOtp({ 
+                    email: email,
+                    options: {
+                        emailRedirectTo: window.location.href
+                    }
+                });
 
-            if (error) {
-                msg.innerText = "Error: " + error.message;
-            } else {
-                msg.innerText = "📧 Magic link sent! Check your email inbox to log in.";
+                if (error) {
+                    msg.innerText = "Error: " + error.message;
+                } else {
+                    msg.innerText = "📧 Magic link sent! Check your email inbox to log in.";
+                }
+            } catch (err) {
+                msg.innerText = "Login error: " + err.message;
             }
         }
 
         // Handle Logout
         async function handleLogout() {
-            await supabase.auth.signOut();
+            if (supabase) await supabase.auth.signOut();
             location.reload();
         }
 
@@ -238,19 +265,23 @@
             if (e.target === document.getElementById('loginModal')) closeLoginModal();
         });
 
-        // Listen for Auth State Changes (Auto-logs in when redirected back from email link)
-        supabase.auth.onAuthStateChange((event, session) => {
-            if (event === 'SIGNED_IN' && session) {
-                checkUserSession();
-                closeLoginModal();
-            }
+        // Listen for Auth State Changes
+        if (supabase) {
+            supabase.auth.onAuthStateChange((event, session) => {
+                if (event === 'SIGNED_IN' && session) {
+                    checkUserSession();
+                    closeLoginModal();
+                }
+            });
+        }
+
+        // Run Auth check after page load
+        window.addEventListener('DOMContentLoaded', () => {
+            checkUserSession();
         });
 
-        // Initialize Session Check on Page Load
-        checkUserSession();
-
         // ============================================================
-        // 📁 EDIT THIS LIST WHEN YOU UPLOAD NEW JSON FILES TO GITHUB!
+        // 📁 DATASET & FILTERING LOGIC
         // ============================================================
         const jsonFiles = [
             'NEETPG_2024_ROUND1.json',
