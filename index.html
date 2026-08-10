@@ -213,7 +213,7 @@
         // ============================================================
         const SUPABASE_URL = 'https://udwlruggphsrauusyauc.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVkd2xydWdncGhzcmF1dXN5YXVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYyOTUzOTgsImV4cCI6MjEwMTg3MTM5OH0.VkKf_6G5b-3Ug5IPxuF8pq3N8bLBA-j9Jo-cy2JzCAE'; 
-        const RAZORPAY_KEY_ID = 'rzp_test_TNvIPuOMlItT28';
+        const RAZORPAY_KEY_ID = 'rzp_live_TOCTpxIisiiz14';
 
         let supabaseClient = null;
 
@@ -387,58 +387,99 @@ async function handleLogout() {
     location.reload();
 }
 
-       // --- RAZORPAY PAYMENT TRIGGER ---
-        async function triggerRazorpayPayment() {
-            if (!supabaseClient) return;
+      async function triggerRazorpayPayment() {
+    if (!supabaseClient) return;
 
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            
-            if (!session) {
-                alert("Please log in first so we can activate full access for your account!");
-                openLoginModal();
-                return;
-            }
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    
+    if (!session) {
+        alert("Please log in first so we can activate full access for your account!");
+        openLoginModal();
+        return;
+    }
 
-            const userEmail = session.user.email;
-            const userId = session.user.id;
+    const userEmail = session.user.email;
+    const userId = session.user.id;
 
-            const options = {
-                "key": RAZORPAY_KEY_ID,
-                "amount": 1000, // ₹10
-                "currency": "INR",
-                "name": "Medical PG Cutoff Portal",
-                "description": "1-Year Full Access (Buy Me a Chai ☕)",
-                "prefill": {
-                    "email": userEmail,
-                    "contact": "" // Explicitly leaves contact empty so your number doesn't show!
-                },
-                "readonly": {
-                    "contact": false // Prevents locking contact fields
-                },
-                "theme": {
-                    "color": "#4f46e5"
-                },
-                "handler": async function (response) {
-                    if (response.razorpay_payment_id) {
-                        const { error } = await supabaseClient
-                            .from('profiles')
-                            .update({ is_paid: true })
-                            .eq('id', userId);
-
-                        if (error) {
-                            alert("Payment succeeded, but updating account failed. Payment ID: " + response.razorpay_payment_id);
-                        } else {
-                            alert("🎉 Payment Successful! Full portal access unlocked for 1 year.");
-                            window.userHasPaid = true;
-                            filterAndRender();
-                        }
+    const options = {
+        key: RAZORPAY_KEY_ID,                    // Use Live key in production
+        amount: 1000,                            // ₹10 → 1000 paise
+        currency: "INR",
+        name: "Medical PG Cutoff Portal",
+        description: "1-Year Full Access (Buy Me a Chai ☕)",
+        image: "https://drankitraj8558.github.io/Medical-Colleges-PG-Cutoffs/favicon.ico", // optional
+        prefill: {
+            email: userEmail,
+            // contact: ""   // leave empty so user can enter their own number
+        },
+        notes: {
+            user_id: userId,
+            purpose: "1_year_full_access"
+        },
+        theme: {
+            color: "#4f46e5"
+        },
+        // Prefer UPI
+        method: {
+            upi: true,
+            card: true,
+            netbanking: true,
+            wallet: true
+        },
+        // This helps show QR more prominently
+        config: {
+            display: {
+                blocks: {
+                    utib: { // preferred banks (optional)
+                        name: "Pay using UPI",
+                        instruments: [
+                            {
+                                method: "upi"
+                            }
+                        ]
                     }
+                },
+                sequence: ["block.utib"],
+                preferences: {
+                    show_default_blocks: true
                 }
-            };
+            }
+        },
+        handler: async function (response) {
+            if (response.razorpay_payment_id) {
+                // Update Supabase
+                const { error } = await supabaseClient
+                    .from('profiles')
+                    .update({ 
+                        is_paid: true,
+                        razorpay_payment_id: response.razorpay_payment_id 
+                    })
+                    .eq('id', userId);
 
-            const rzp = new Razorpay(options);
-            rzp.open();
+                if (error) {
+                    alert("Payment succeeded, but updating account failed.\nPayment ID: " + response.razorpay_payment_id + "\nPlease contact support.");
+                } else {
+                    alert("🎉 Payment Successful!\nFull portal access unlocked for 1 year.");
+                    window.userHasPaid = true;
+                    filterAndRender();
+                }
+            }
+        },
+        modal: {
+            ondismiss: function() {
+                console.log("Payment modal closed");
+            }
         }
+    };
+
+    const rzp = new Razorpay(options);
+    
+    rzp.on('payment.failed', function (response) {
+        alert("Payment failed: " + response.error.description);
+    });
+
+    rzp.open();
+}
         // Modal Controls
         window.openLoginModal = function() {
             const modal = document.getElementById('loginModal');
