@@ -166,24 +166,34 @@
         </div>
     </div>
 
-    <!-- JavaScript Logic -->
+  <!-- JavaScript Logic -->
     <script>
         // ============================================================
         // 🔐 CONFIGURATION KEYS
         // ============================================================
         const SUPABASE_URL = 'https://udwlruggphsrauusyauc.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVkd2xydWdncGhzcmF1dXN5YXVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYyOTUzOTgsImV4cCI6MjEwMTg3MTM5OH0.VkKf_6G5b-3Ug5IPxuF8pq3N8bLBA-j9Jo-cy2JzCAE'; // Replace with long eyJ... key
-        const RAZORPAY_KEY_ID = 'rzp_test_TNvIPuOMlItT28'; // Replace with Razorpay Key ID
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVkd2xydWdncGhzcmF1dXN5YXVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYyOTUzOTgsImV4cCI6MjEwMTg3MTM5OH0.VkKf_6G5b-3Ug5IPxuF8pq3N8bLBA-j9Jo-cy2JzCAE'; // Replace with your eyJ... key
+        const RAZORPAY_KEY_ID = 'rzp_test_TNvIPuOMlItT28';
 
-        const supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+        // Renamed to 'supabaseClient' so it never collides with the CDN library name!
+        let supabaseClient = null;
+
+        try {
+            if (window.supabase && typeof window.supabase.createClient === 'function') {
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            }
+        } catch (e) {
+            console.error("Supabase initialization failed:", e);
+        }
+
         window.userHasPaid = false;
 
         // --- AUTH & PAYMENT STATUS CHECK ---
         async function checkUserSession() {
-            if (!supabase) return;
+            if (!supabaseClient) return;
 
             try {
-                const { data: { session }, error } = await supabase.auth.getSession();
+                const { data: { session }, error } = await supabaseClient.auth.getSession();
                 if (error) throw error;
 
                 if (session) {
@@ -207,8 +217,10 @@
         }
 
         async function checkPaymentStatus(userId) {
+            if (!supabaseClient) return;
+
             try {
-                const { data, error } = await supabase
+                const { data, error } = await supabaseClient
                     .from('profiles')
                     .select('is_paid')
                     .eq('id', userId)
@@ -224,7 +236,7 @@
         }
 
         async function handleEmailLogin() {
-            if (!supabase) {
+            if (!supabaseClient) {
                 alert("Supabase service is initializing. Please refresh and try again.");
                 return;
             }
@@ -240,7 +252,7 @@
             msg.innerText = "Sending link...";
 
             try {
-                const { error } = await supabase.auth.signInWithOtp({ 
+                const { error } = await supabaseClient.auth.signInWithOtp({ 
                     email: email,
                     options: {
                         emailRedirectTo: window.location.href
@@ -258,15 +270,15 @@
         }
 
         async function handleLogout() {
-            if (supabase) await supabase.auth.signOut();
+            if (supabaseClient) await supabaseClient.auth.signOut();
             location.reload();
         }
 
         // --- RAZORPAY PAYMENT TRIGGER ---
         async function triggerRazorpayPayment() {
-            if (!supabase) return;
+            if (!supabaseClient) return;
 
-            const { data: { session } } = await supabase.auth.getSession();
+            const { data: { session } } = await supabaseClient.auth.getSession();
             
             if (!session) {
                 alert("Please log in first so we can activate full access for your account!");
@@ -291,7 +303,7 @@
                 },
                 "handler": async function (response) {
                     if (response.razorpay_payment_id) {
-                        const { error } = await supabase
+                        const { error } = await supabaseClient
                             .from('profiles')
                             .update({ is_paid: true })
                             .eq('id', userId);
@@ -312,22 +324,28 @@
         }
 
         // Modal Controls
-        function openLoginModal() {
-            document.getElementById('loginModal').classList.remove('hidden');
-            document.getElementById('loginModal').classList.add('flex');
-        }
+        window.openLoginModal = function() {
+            const modal = document.getElementById('loginModal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+        };
 
-        function closeLoginModal() {
-            document.getElementById('loginModal').classList.add('hidden');
-            document.getElementById('loginModal').classList.remove('flex');
-        }
+        window.closeLoginModal = function() {
+            const modal = document.getElementById('loginModal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        };
 
         document.getElementById('loginModal').addEventListener('click', (e) => {
             if (e.target === document.getElementById('loginModal')) closeLoginModal();
         });
 
-        if (supabase) {
-            supabase.auth.onAuthStateChange((event, session) => {
+        if (supabaseClient) {
+            supabaseClient.auth.onAuthStateChange((event, session) => {
                 if (event === 'SIGNED_IN' && session) {
                     checkUserSession();
                     closeLoginModal();
