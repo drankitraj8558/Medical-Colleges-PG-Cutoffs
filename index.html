@@ -166,14 +166,14 @@
         </div>
     </div>
 
-    <!-- Java Logic -->
- <script>
+    <!-- JavaScript Logic -->
+    <script>
         // ============================================================
-        // 🔐 CONFIGURATION KEYS
+        // 🔐 CONFIGURATION KEYS (REPLACE WITH YOUR ACTUAL KEYS)
         // ============================================================
-        const SUPABASE_URL = 'https://udwlruggphsrauusyauc.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_4EGYOh9BxQm3F9z2UvTw7A_DDy2GnhR';
-        const RAZORPAY_KEY_ID = 'rzp_test_TNvIPuOMlItT28';
+        const SUPABASE_URL = 'https://udwlruggphsrauusyauc.supabase.co';       // Replace with Supabase URL
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVkd2xydWdncGhzcmF1dXN5YXVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYyOTUzOTgsImV4cCI6MjEwMTg3MTM5OH0.VkKf_6G5b-3Ug5IPxuF8pq3N8bLBA-j9Jo-cy2JzCAE';   // Replace with Supabase Anon Key
+        const RAZORPAY_KEY_ID = 'rzp_test_TNvIPuOMlItT28';     // Replace with Razorpay Key ID
 
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         window.userHasPaid = false;
@@ -191,14 +191,6 @@
                 await checkPaymentStatus(session.user.id);
             }
         }
-
-        // Listen for Auth State Changes (Handles Auto-Login on Magic Link Redirect)
-        supabase.auth.onAuthStateChange((event, session) => {
-            if (event === 'SIGNED_IN' && session) {
-                checkUserSession();
-                closeLoginModal();
-            }
-        });
 
         async function checkPaymentStatus(userId) {
             const { data, error } = await supabase
@@ -221,17 +213,11 @@
                 return;
             }
             
-            const { error } = await supabase.auth.signInWithOtp({ 
-                email: email,
-                options: {
-                    emailRedirectTo: window.location.href
-                }
-            });
-
+            const { error } = await supabase.auth.signInWithOtp({ email: email });
             if (error) {
                 msg.innerText = "Error: " + error.message;
             } else {
-                msg.innerText = "📧 Magic Link sent! Check your email inbox to log in.";
+                msg.innerText = "Check your email for the magic login link!";
             }
         }
 
@@ -249,10 +235,6 @@
             document.getElementById('loginModal').classList.add('hidden');
             document.getElementById('loginModal').classList.remove('flex');
         }
-
-        document.getElementById('loginModal').addEventListener('click', (e) => {
-            if (e.target === document.getElementById('loginModal')) closeLoginModal();
-        });
 
         // --- Razorpay Payment Trigger ---
         async function triggerRazorpayPayment() {
@@ -309,6 +291,7 @@
         const jsonFiles = [
             'NEETPG_2024_ROUND1.json',
             'NEETPG_2024_ROUND2.json',
+            'NEETPG_2024_ROUND3.json',
             'NEETPG_2025_ROUND1.json',
             'NEETPG_2025_ROUND2.json',
             'NEETPG_2025_ROUND3.json',
@@ -388,8 +371,7 @@
                 html += `<div class="p-3 text-xs text-slate-400 text-center">No matching courses found</div>`;
             } else {
                 matches.forEach(course => {
-                    const safeCourse = course.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                    html += `<div class="p-2.5 text-xs text-slate-700 hover:bg-indigo-50 hover:text-indigo-900 cursor-pointer transition-colors" onclick="selectCourse('${safeCourse}')">${course}</div>`;
+                    html += `<div class="p-2.5 text-xs text-slate-700 hover:bg-indigo-50 hover:text-indigo-900 cursor-pointer transition-colors" onclick="selectCourse('${course.replace(/'/g, "\\'")}')">${course}</div>`;
                 });
             }
             courseDropdown.innerHTML = html;
