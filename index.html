@@ -11,7 +11,7 @@
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen">
 
-    <!-- Header with Auth Controls -->
+    <!-- Header -->
     <header class="bg-indigo-800 text-white py-6 px-4 shadow-lg mb-8">
         <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
             <div class="text-center sm:text-left">
@@ -164,16 +164,16 @@
         </div>
     </div>
 
-<!-- JavaScript Logic -->
+    <!-- JavaScript Logic -->
     <script>
         // ============================================================
-        // 🔐 SUPABASE CONFIGURATION
+        // 🔐 SUPABASE CONFIGURATION (PASTE YOUR ACTUAL LONG eyJ... KEY BELOW)
         // ============================================================
-       const SUPABASE_URL = 'https://udwlruggphsrauusyauc.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_4EGYOh9BxQm3F9z2UvTw7A_DDy2GnhR';
+        const SUPABASE_URL = 'https://udwlruggphsrauusyauc.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVkd2xydWdncGhzcmF1dXN5YXVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYyOTUzOTgsImV4cCI6MjEwMTg3MTM5OH0.VkKf_6G5b-3Ug5IPxuF8pq3N8bLBA-j9Jo-cy2JzCAE'; 
+
         let supabase = null;
 
-        // Safe Supabase Initialization
         try {
             if (window.supabase && typeof window.supabase.createClient === 'function') {
                 supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -182,7 +182,7 @@ const SUPABASE_ANON_KEY = 'sb_publishable_4EGYOh9BxQm3F9z2UvTw7A_DDy2GnhR';
             console.error("Supabase initialization failed:", e);
         }
 
-        // --- AUTH LOGIC (Safe & Non-blocking) ---
+        // --- AUTH LOGIC ---
         async function checkUserSession() {
             if (!supabase) return;
 
@@ -208,7 +208,6 @@ const SUPABASE_ANON_KEY = 'sb_publishable_4EGYOh9BxQm3F9z2UvTw7A_DDy2GnhR';
             }
         }
 
-        // Handle Magic Link Login
         async function handleEmailLogin() {
             if (!supabase) {
                 alert("Supabase service is initializing. Please refresh and try again.");
@@ -243,13 +242,11 @@ const SUPABASE_ANON_KEY = 'sb_publishable_4EGYOh9BxQm3F9z2UvTw7A_DDy2GnhR';
             }
         }
 
-        // Handle Logout
         async function handleLogout() {
             if (supabase) await supabase.auth.signOut();
             location.reload();
         }
 
-        // Modal Controls
         function openLoginModal() {
             document.getElementById('loginModal').classList.remove('hidden');
             document.getElementById('loginModal').classList.add('flex');
@@ -264,7 +261,6 @@ const SUPABASE_ANON_KEY = 'sb_publishable_4EGYOh9BxQm3F9z2UvTw7A_DDy2GnhR';
             if (e.target === document.getElementById('loginModal')) closeLoginModal();
         });
 
-        // Listen for Auth State Changes
         if (supabase) {
             supabase.auth.onAuthStateChange((event, session) => {
                 if (event === 'SIGNED_IN' && session) {
@@ -274,7 +270,6 @@ const SUPABASE_ANON_KEY = 'sb_publishable_4EGYOh9BxQm3F9z2UvTw7A_DDy2GnhR';
             });
         }
 
-        // Run Auth check after page load
         window.addEventListener('DOMContentLoaded', () => {
             checkUserSession();
         });
@@ -299,7 +294,6 @@ const SUPABASE_ANON_KEY = 'sb_publishable_4EGYOh9BxQm3F9z2UvTw7A_DDy2GnhR';
         let allCoursesList = [];
         let selectedCourseValue = "";
 
-        // DOM References
         const rankInput = document.getElementById('rankInput');
         const searchInput = document.getElementById('searchInput');
         const examFilter = document.getElementById('examFilter');
@@ -314,7 +308,6 @@ const SUPABASE_ANON_KEY = 'sb_publishable_4EGYOh9BxQm3F9z2UvTw7A_DDy2GnhR';
         const resultsCount = document.getElementById('resultsCount');
         const resetBtn = document.getElementById('resetBtn');
 
-        // Fetch ALL JSON files in parallel
         Promise.all(
             jsonFiles.map(file => 
                 fetch(`./${file}`)
@@ -342,7 +335,6 @@ const SUPABASE_ANON_KEY = 'sb_publishable_4EGYOh9BxQm3F9z2UvTw7A_DDy2GnhR';
             tableBody.innerHTML = `<tr><td colspan="8" class="py-8 text-center text-red-500 font-semibold">Error loading datasets.</td></tr>`;
         });
 
-        // Populate dropdown options & build course search list
         function populateDynamicDropdowns(data) {
             const exams = new Set();
             const years = new Set();
@@ -377,7 +369,6 @@ const SUPABASE_ANON_KEY = 'sb_publishable_4EGYOh9BxQm3F9z2UvTw7A_DDy2GnhR';
             allCoursesList = Array.from(courses).sort();
         }
 
-        // --- Searchable Course Dropdown Logic ---
         function renderCourseDropdown(filterText = "") {
             const query = filterText.toLowerCase().trim();
             const matches = allCoursesList.filter(c => c.toLowerCase().includes(query));
@@ -417,7 +408,6 @@ const SUPABASE_ANON_KEY = 'sb_publishable_4EGYOh9BxQm3F9z2UvTw7A_DDy2GnhR';
             if (!courseWrapper.contains(e.target) && !courseDropdown.contains(e.target)) courseDropdown.classList.add('hidden');
         });
 
-        // Main Filtering Logic
         function filterAndRender() {
             const userRank = parseInt(rankInput.value);
             const searchVal = searchInput.value.toLowerCase().trim();
@@ -448,7 +438,6 @@ const SUPABASE_ANON_KEY = 'sb_publishable_4EGYOh9BxQm3F9z2UvTw7A_DDy2GnhR';
             renderTable(filtered);
         }
 
-        // Table Renderer
         function renderTable(data) {
             const userRank = parseInt(rankInput.value);
 
@@ -504,13 +493,11 @@ const SUPABASE_ANON_KEY = 'sb_publishable_4EGYOh9BxQm3F9z2UvTw7A_DDy2GnhR';
                 : `Showing all ${data.length.toLocaleString()} eligible cutoffs`;
         }
 
-        // Attach Event Listeners
         [rankInput, searchInput, examFilter, yearFilter, roundFilter, quotaFilter, categoryFilter].forEach(elem => {
             elem.addEventListener('input', filterAndRender);
             elem.addEventListener('change', filterAndRender);
         });
 
-        // Reset Button Handler
         resetBtn.addEventListener('click', () => {
             rankInput.value = '';
             searchInput.value = '';
