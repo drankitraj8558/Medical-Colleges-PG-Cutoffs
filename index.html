@@ -137,8 +137,8 @@
 
     <!-- JavaScript Logic -->
     <script>
-        // ============================================================
-        // 📁 EDIT THIS LIST WHEN YOU UPLOAD NEW JSON FILES TO GITHUB!
+    // ============================================================
+        // 📁 DATASET & FILTERING LOGIC
         // ============================================================
         const jsonFiles = [
             'NEETPG_2024_ROUND1.json',
@@ -149,15 +149,14 @@
             'NEETPG_2025_ROUND3.json',
             'INICET_2026_JULY_ROUND1.json',
             'INICET_2026_JULY_ROUND2.json',
-        'INICET_2026_JANUARY_ROUND1.json',
-             'INICET_2026_JANUARY_ROUND2.json'
+            'INICET_2026_JANUARY_ROUND1.json',
+            'INICET_2026_JANUARY_ROUND2.json'
         ];
 
         let allData = [];
         let allCoursesList = [];
         let selectedCourseValue = "";
 
-        // DOM References
         const rankInput = document.getElementById('rankInput');
         const searchInput = document.getElementById('searchInput');
         const examFilter = document.getElementById('examFilter');
@@ -172,7 +171,6 @@
         const resultsCount = document.getElementById('resultsCount');
         const resetBtn = document.getElementById('resetBtn');
 
-  
         // Fetch ALL JSON files in parallel
         Promise.all(
             jsonFiles.map(file => 
