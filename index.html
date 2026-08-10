@@ -172,40 +172,7 @@
         const resultsCount = document.getElementById('resultsCount');
         const resetBtn = document.getElementById('resetBtn');
 
-     // ============================================================
-        // 📁 DATASET & FILTERING LOGIC
-        // ============================================================
-        const jsonFiles = [
-            'NEETPG_2024_ROUND1.json',
-            'NEETPG_2024_ROUND2.json',
-            'NEETPG_2024_ROUND3.json',
-            'NEETPG_2025_ROUND1.json',
-            'NEETPG_2025_ROUND2.json',
-            'NEETPG_2025_ROUND3.json',
-            'INICET_2026_JULY_ROUND1.json',
-            'INICET_2026_JULY_ROUND2.json',
-            'INICET_2026_JANUARY_ROUND1.json',
-            'INICET_2026_JANUARY_ROUND2.json'
-        ];
-
-        let allData = [];
-        let allCoursesList = [];
-        let selectedCourseValue = "";
-
-        const rankInput = document.getElementById('rankInput');
-        const searchInput = document.getElementById('searchInput');
-        const examFilter = document.getElementById('examFilter');
-        const yearFilter = document.getElementById('yearFilter');
-        const roundFilter = document.getElementById('roundFilter');
-        const quotaFilter = document.getElementById('quotaFilter');
-        const categoryFilter = document.getElementById('categoryFilter');
-        const courseInput = document.getElementById('courseInput');
-        const courseWrapper = document.getElementById('courseWrapper');
-        const courseDropdown = document.getElementById('courseDropdown');
-        const tableBody = document.getElementById('tableBody');
-        const resultsCount = document.getElementById('resultsCount');
-        const resetBtn = document.getElementById('resetBtn');
-
+  
         // Fetch ALL JSON files in parallel
         Promise.all(
             jsonFiles.map(file => 
