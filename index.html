@@ -288,28 +288,18 @@
         // ============================================================
         // 📁 DATASET & FILTERING LOGIC
         // ============================================================
+        const repoPath = window.location.pathname.includes('/Medical-Colleges-PG-Cutoffs/') 
+            ? '/Medical-Colleges-PG-Cutoffs' 
+            : '';
+
         const jsonFiles = [
-            'NEETPG_2024_ROUND1.json',
-            'NEETPG_2024_ROUND2.json',
-            'NEETPG_2024_ROUND3.json',
-            'NEETPG_2025_ROUND1.json',
-            'NEETPG_2025_ROUND2.json',
-            'NEETPG_2025_ROUND3.json',
-            'INICET_2026_JULY_ROUND1.json'
+            `${repoPath}/NEETPG_2024_ROUND1.json`,
+            `${repoPath}/NEETPG_2024_ROUND2.json`,
+            `${repoPath}/NEETPG_2025_ROUND1.json`,
+            `${repoPath}/NEETPG_2025_ROUND2.json`,
+            `${repoPath}/NEETPG_2025_ROUND3.json`,
+            `${repoPath}/INICET_2026_JULY_ROUND1.json`
         ];
-        const repoPath = window.location.pathname.includes('/Medical-Colleges-PG-Cutoffs/') 
-    ? '/Medical-Colleges-PG-Cutoffs' 
-    : '';
-
-const jsonFiles = [
-    `${repoPath}/NEETPG_2024_ROUND1.json`,
-    `${repoPath}/NEETPG_2024_ROUND2.json`,
-    `${repoPath}/NEETPG_2025_ROUND1.json`,
-    `${repoPath}/NEETPG_2025_ROUND2.json`,
-    `${repoPath}/NEETPG_2025_ROUND3.json`,
-    `${repoPath}/INICET_2026_JULY_ROUND1.json`
-];
-
         let allData = [];
         let allCoursesList = [];
         let selectedCourseValue = "";
