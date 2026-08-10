@@ -148,22 +148,22 @@
 
     </main>
 
-   <!-- Improved Magic Link + Google Login Modal -->
+  <!-- Polished Login Modal (Google + Magic Link) -->
 <div id="loginModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8 relative animate-[fadeIn_0.2s_ease-out]">
-        <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-2xl leading-none">&times;</button>
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8 relative">
+        <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-2xl leading-none font-light">&times;</button>
         
         <div class="text-center mb-6">
-            <div class="mx-auto w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center mb-3">
+            <div class="mx-auto w-14 h-14 bg-indigo-100 rounded-full flex items-center justify-center mb-3">
                 <span class="text-2xl">🔐</span>
             </div>
             <h3 class="text-xl font-extrabold text-slate-900">Sign in to Portal</h3>
-            <p class="text-sm text-slate-500 mt-1">Unlock full cutoff lists and save your rank</p>
+            <p class="text-sm text-slate-500 mt-1">Unlock full cutoff lists & save your rank</p>
         </div>
 
         <!-- Google Button -->
         <button onclick="handleGoogleLogin()" id="google-btn"
-                class="w-full flex items-center justify-center gap-3 bg-white border-2 border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-800 font-semibold py-3 px-4 rounded-xl transition-all shadow-sm mb-4">
+                class="w-full flex items-center justify-center gap-3 bg-white border-2 border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-800 font-semibold py-3.5 px-4 rounded-xl transition-all shadow-sm">
             <svg class="w-5 h-5" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                 <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -174,8 +174,12 @@
         </button>
 
         <div class="relative my-5">
-            <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-200"></div></div>
-            <div class="relative flex justify-center text-xs uppercase"><span class="bg-white px-3 text-slate-400 font-medium">or continue with email</span></div>
+            <div class="absolute inset-0 flex items-center">
+                <div class="w-full border-t border-slate-200"></div>
+            </div>
+            <div class="relative flex justify-center text-xs">
+                <span class="bg-white px-3 text-slate-400 font-medium uppercase tracking-wider">or continue with email</span>
+            </div>
         </div>
 
         <!-- Email Form -->
@@ -186,7 +190,7 @@
                        class="w-full p-3.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
             </div>
             <button onclick="handleMagicLinkLogin()" id="magic-link-btn"
-                    class="w-full bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-400 text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-md flex items-center justify-center gap-2">
+                    class="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-70 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-md flex items-center justify-center gap-2">
                 <span id="magic-btn-text">Send Sign-In Link</span>
                 <svg id="magic-spinner" class="hidden w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -275,40 +279,61 @@
         }
 
        // --- GOOGLE LOGIN ---
+// --- GOOGLE OAUTH LOGIN ---
 async function handleGoogleLogin() {
-    if (!supabaseClient) return;
+    if (!supabaseClient) {
+        alert("Auth system not ready. Please refresh the page.");
+        return;
+    }
+
     const btn = document.getElementById('google-btn');
+    const originalHTML = btn.innerHTML;
     btn.disabled = true;
-    btn.innerHTML = `<span class="animate-pulse">Redirecting to Google...</span>`;
-    
+    btn.innerHTML = `<span class="animate-pulse text-sm">Redirecting to Google...</span>`;
+
     try {
         const { error } = await supabaseClient.auth.signInWithOAuth({
             provider: 'google',
             options: {
-                redirectTo: window.location.href,
-                queryParams: { access_type: 'offline', prompt: 'consent' }
+                redirectTo: window.location.origin + window.location.pathname,
+                queryParams: {
+                    access_type: 'offline',
+                    prompt: 'consent'
+                }
             }
         });
+
         if (error) throw error;
+        // User will be redirected to Google, then back
     } catch (err) {
-        document.getElementById('auth-message').innerHTML = 
-            `<div class="p-3 bg-red-50 text-red-700 rounded-lg border border-red-200 text-xs">Error: ${err.message}</div>`;
+        console.error("Google login error:", err);
+        document.getElementById('auth-message').innerHTML = `
+            <div class="p-3 bg-red-50 text-red-700 rounded-xl border border-red-200 text-xs">
+                ${err.message || "Failed to start Google login"}
+            </div>`;
         btn.disabled = false;
-        btn.innerHTML = `...original Google SVG + text...`; // restore
+        btn.innerHTML = originalHTML;
     }
 }
 
-// --- MAGIC LINK (improved) ---
+// --- POLISHED MAGIC LINK LOGIN ---
 async function handleMagicLinkLogin() {
     if (!supabaseClient) return;
-    const email = document.getElementById('auth-email-input').value.trim();
+
+    const emailInput = document.getElementById('auth-email-input');
+    const email = emailInput.value.trim();
     const msg = document.getElementById('auth-message');
     const btn = document.getElementById('magic-link-btn');
     const btnText = document.getElementById('magic-btn-text');
     const spinner = document.getElementById('magic-spinner');
 
-    if (!email || !email.includes('@')) {
-        msg.innerHTML = `<div class="p-3 bg-amber-50 text-amber-800 rounded-lg border border-amber-200 text-xs">Please enter a valid email address.</div>`;
+    // Validation
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        msg.innerHTML = `
+            <div class="p-3 bg-amber-50 text-amber-800 rounded-xl border border-amber-200 text-xs">
+                Please enter a valid email address.
+            </div>`;
+        emailInput.focus();
         return;
     }
 
@@ -332,26 +357,35 @@ async function handleMagicLinkLogin() {
         // Success state
         msg.innerHTML = `
             <div class="p-4 bg-emerald-50 text-emerald-800 rounded-xl border border-emerald-200 text-left">
-                <p class="font-bold mb-1 flex items-center gap-2">📩 Link sent!</p>
+                <p class="font-bold mb-1 flex items-center gap-1.5">📩 Sign-in link sent!</p>
                 <p class="text-xs leading-relaxed">
-                    We emailed a secure sign-in link to <strong>${email}</strong>.<br>
-                    Click the link in your inbox (check spam if needed). You can close this window.
+                    We emailed a secure link to <strong>${email}</strong>.<br>
+                    Click the link in your inbox (check spam/junk if you don’t see it). You can close this window.
                 </p>
             </div>`;
         btnText.textContent = 'Link Sent ✓';
+        // Keep button disabled so user doesn’t spam
     } catch (err) {
-        msg.innerHTML = `<div class="p-3 bg-red-50 text-red-700 rounded-lg border border-red-200 text-xs">Error: ${err.message}</div>`;
+        console.error("Magic link error:", err);
+        msg.innerHTML = `
+            <div class="p-3 bg-red-50 text-red-700 rounded-xl border border-red-200 text-xs">
+                ${err.message || "Failed to send link. Please try again."}
+            </div>`;
         btnText.textContent = 'Send Sign-In Link';
         btn.disabled = false;
     } finally {
         spinner.classList.add('hidden');
     }
 }
-        async function handleLogout() {
-            if (supabaseClient) await supabaseClient.auth.signOut();
-            window.userHasPaid = false;
-            location.reload();
-        }
+
+// --- LOGOUT (unchanged but cleaned) ---
+async function handleLogout() {
+    if (supabaseClient) {
+        await supabaseClient.auth.signOut();
+    }
+    window.userHasPaid = false;
+    location.reload();
+}
 
        // --- RAZORPAY PAYMENT TRIGGER ---
         async function triggerRazorpayPayment() {
