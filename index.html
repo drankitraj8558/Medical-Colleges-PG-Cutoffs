@@ -55,7 +55,7 @@
 
             </div>
 
-            <!-- Dynamic Dropdowns Grid -->
+            <!-- Dynamic Cascading Dropdowns Grid -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
                 
                 <!-- Exam Filter -->
@@ -68,7 +68,7 @@
 
                 <!-- Year Filter -->
                 <div>
-                    <label for="yearFilter" class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Year</label>
+                    <label for="yearFilter" class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Year / Session</label>
                     <select id="yearFilter" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm">
                         <option value="">All Years</option>
                     </select>
@@ -148,64 +148,65 @@
 
     </main>
 
-  <!-- Polished Login Modal (Google + Magic Link) -->
-<div id="loginModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8 relative">
-        <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-2xl leading-none font-light">&times;</button>
-        
-        <div class="text-center mb-6">
-            <div class="mx-auto w-14 h-14 bg-indigo-100 rounded-full flex items-center justify-center mb-3">
-                <span class="text-2xl">🔐</span>
+    <!-- Polished Login Modal (Google + Magic Link) -->
+    <div id="loginModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8 relative">
+            <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-2xl leading-none font-light">&times;</button>
+            
+            <div class="text-center mb-6">
+                <div class="mx-auto w-14 h-14 bg-indigo-100 rounded-full flex items-center justify-center mb-3">
+                    <span class="text-2xl">🔐</span>
+                </div>
+                <h3 class="text-xl font-extrabold text-slate-900">Sign in to Portal</h3>
+                <p class="text-sm text-slate-500 mt-1">Unlock full cutoff lists & save your rank</p>
             </div>
-            <h3 class="text-xl font-extrabold text-slate-900">Sign in to Portal</h3>
-            <p class="text-sm text-slate-500 mt-1">Unlock full cutoff lists & save your rank</p>
-        </div>
 
-        <!-- Google Button -->
-        <button onclick="handleGoogleLogin()" id="google-btn"
-                class="w-full flex items-center justify-center gap-3 bg-white border-2 border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-800 font-semibold py-3.5 px-4 rounded-xl transition-all shadow-sm">
-            <svg class="w-5 h-5" viewBox="0 0 24 24">
-                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-            </svg>
-            Continue with Google
-        </button>
-
-        <div class="relative my-5">
-            <div class="absolute inset-0 flex items-center">
-                <div class="w-full border-t border-slate-200"></div>
-            </div>
-            <div class="relative flex justify-center text-xs">
-                <span class="bg-white px-3 text-slate-400 font-medium uppercase tracking-wider">or continue with email</span>
-            </div>
-        </div>
-
-        <!-- Email Form -->
-        <div id="login-form-container" class="space-y-4">
-            <div>
-                <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wide mb-1.5">Email Address</label>
-                <input type="email" id="auth-email-input" placeholder="name@example.com" 
-                       class="w-full p-3.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
-            </div>
-            <button onclick="handleMagicLinkLogin()" id="magic-link-btn"
-                    class="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-70 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-md flex items-center justify-center gap-2">
-                <span id="magic-btn-text">Send Sign-In Link</span>
-                <svg id="magic-spinner" class="hidden w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            <!-- Google Button -->
+            <button onclick="handleGoogleLogin()" id="google-btn"
+                    class="w-full flex items-center justify-center gap-3 bg-white border-2 border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-800 font-semibold py-3.5 px-4 rounded-xl transition-all shadow-sm cursor-pointer">
+                <svg class="w-5 h-5" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                 </svg>
+                Continue with Google
             </button>
-        </div>
 
-        <div id="auth-message" class="mt-5 text-sm text-center leading-relaxed"></div>
-        
-        <p class="mt-6 text-center text-xs text-slate-400">
-            By continuing you agree to our terms. We only use your email for login.
-        </p>
+            <div class="relative my-5">
+                <div class="absolute inset-0 flex items-center">
+                    <div class="w-full border-t border-slate-200"></div>
+                </div>
+                <div class="relative flex justify-center text-xs">
+                    <span class="bg-white px-3 text-slate-400 font-medium uppercase tracking-wider">or continue with email</span>
+                </div>
+            </div>
+
+            <!-- Email Form -->
+            <div id="login-form-container" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wide mb-1.5">Email Address</label>
+                    <input type="email" id="auth-email-input" placeholder="name@example.com" 
+                           class="w-full p-3.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
+                </div>
+                <button onclick="handleMagicLinkLogin()" id="magic-link-btn"
+                        class="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-70 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer">
+                    <span id="magic-btn-text">Send Sign-In Link</span>
+                    <svg id="magic-spinner" class="hidden w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <div id="auth-message" class="mt-5 text-sm text-center leading-relaxed"></div>
+            
+            <p class="mt-6 text-center text-xs text-slate-400">
+                By continuing you agree to our terms. We only use your email for login.
+            </p>
+        </div>
     </div>
-</div>
+
     <!-- JavaScript Logic -->
     <script>
         // ============================================================
@@ -220,9 +221,7 @@
         try {
             if (window.supabase && typeof window.supabase.createClient === 'function') {
                 supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-                    auth: {
-                        persistSession: true
-                    }
+                    auth: { persistSession: true }
                 });
             }
         } catch (e) {
@@ -241,11 +240,9 @@
 
                 if (session) {
                     document.getElementById('login-btn').classList.add('hidden');
-                    
                     const emailSpan = document.getElementById('user-email');
                     emailSpan.innerText = session.user.email;
                     emailSpan.classList.remove('hidden');
-
                     document.getElementById('logout-btn').classList.remove('hidden');
 
                     await checkPaymentStatus(session.user.id);
@@ -278,212 +275,155 @@
             }
         }
 
-       // --- GOOGLE LOGIN ---
-// --- GOOGLE OAUTH LOGIN ---
-async function handleGoogleLogin() {
-    if (!supabaseClient) {
-        alert("Auth system not ready. Please refresh the page.");
-        return;
-    }
+        // --- GOOGLE OAUTH LOGIN ---
+        async function handleGoogleLogin() {
+            if (!supabaseClient) return;
+            const btn = document.getElementById('google-btn');
+            const originalHTML = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = `<span class="animate-pulse text-sm">Redirecting to Google...</span>`;
 
-    const btn = document.getElementById('google-btn');
-    const originalHTML = btn.innerHTML;
-    btn.disabled = true;
-    btn.innerHTML = `<span class="animate-pulse text-sm">Redirecting to Google...</span>`;
-
-    try {
-        const { error } = await supabaseClient.auth.signInWithOAuth({
-            provider: 'google',
-            options: {
-                redirectTo: window.location.origin + window.location.pathname,
-                queryParams: {
-                    access_type: 'offline',
-                    prompt: 'consent'
-                }
+            try {
+                const { error } = await supabaseClient.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: {
+                        redirectTo: window.location.origin + window.location.pathname,
+                        queryParams: { access_type: 'offline', prompt: 'consent' }
+                    }
+                });
+                if (error) throw error;
+            } catch (err) {
+                console.error("Google login error:", err);
+                document.getElementById('auth-message').innerHTML = `<div class="p-3 bg-red-50 text-red-700 rounded-xl border border-red-200 text-xs">${err.message || "Failed to start Google login"}</div>`;
+                btn.disabled = false;
+                btn.innerHTML = originalHTML;
             }
-        });
+        }
 
-        if (error) throw error;
-        // User will be redirected to Google, then back
-    } catch (err) {
-        console.error("Google login error:", err);
-        document.getElementById('auth-message').innerHTML = `
-            <div class="p-3 bg-red-50 text-red-700 rounded-xl border border-red-200 text-xs">
-                ${err.message || "Failed to start Google login"}
-            </div>`;
-        btn.disabled = false;
-        btn.innerHTML = originalHTML;
-    }
-}
+        // --- MAGIC LINK LOGIN ---
+        async function handleMagicLinkLogin() {
+            if (!supabaseClient) return;
 
-// --- POLISHED MAGIC LINK LOGIN ---
-async function handleMagicLinkLogin() {
-    if (!supabaseClient) return;
+            const emailInput = document.getElementById('auth-email-input');
+            const email = emailInput.value.trim();
+            const msg = document.getElementById('auth-message');
+            const btn = document.getElementById('magic-link-btn');
+            const btnText = document.getElementById('magic-btn-text');
+            const spinner = document.getElementById('magic-spinner');
 
-    const emailInput = document.getElementById('auth-email-input');
-    const email = emailInput.value.trim();
-    const msg = document.getElementById('auth-message');
-    const btn = document.getElementById('magic-link-btn');
-    const btnText = document.getElementById('magic-btn-text');
-    const spinner = document.getElementById('magic-spinner');
-
-    // Validation
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        msg.innerHTML = `
-            <div class="p-3 bg-amber-50 text-amber-800 rounded-xl border border-amber-200 text-xs">
-                Please enter a valid email address.
-            </div>`;
-        emailInput.focus();
-        return;
-    }
-
-    // Loading state
-    btn.disabled = true;
-    btnText.textContent = 'Sending...';
-    spinner.classList.remove('hidden');
-    msg.innerHTML = '';
-
-    try {
-        const { error } = await supabaseClient.auth.signInWithOtp({
-            email: email,
-            options: {
-                emailRedirectTo: window.location.origin + window.location.pathname,
-                shouldCreateUser: true
+            if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                msg.innerHTML = `<div class="p-3 bg-amber-50 text-amber-800 rounded-xl border border-amber-200 text-xs">Please enter a valid email address.</div>`;
+                emailInput.focus();
+                return;
             }
-        });
 
-        if (error) throw error;
+            btn.disabled = true;
+            btnText.textContent = 'Sending...';
+            spinner.classList.remove('hidden');
+            msg.innerHTML = '';
 
-        // Success state
-        msg.innerHTML = `
-            <div class="p-4 bg-emerald-50 text-emerald-800 rounded-xl border border-emerald-200 text-left">
-                <p class="font-bold mb-1 flex items-center gap-1.5">📩 Sign-in link sent!</p>
-                <p class="text-xs leading-relaxed">
-                    We emailed a secure link to <strong>${email}</strong>.<br>
-                    Click the link in your inbox (check spam/junk if you don’t see it). You can close this window.
-                </p>
-            </div>`;
-        btnText.textContent = 'Link Sent ✓';
-        // Keep button disabled so user doesn’t spam
-    } catch (err) {
-        console.error("Magic link error:", err);
-        msg.innerHTML = `
-            <div class="p-3 bg-red-50 text-red-700 rounded-xl border border-red-200 text-xs">
-                ${err.message || "Failed to send link. Please try again."}
-            </div>`;
-        btnText.textContent = 'Send Sign-In Link';
-        btn.disabled = false;
-    } finally {
-        spinner.classList.add('hidden');
-    }
-}
+            try {
+                const { error } = await supabaseClient.auth.signInWithOtp({
+                    email: email,
+                    options: {
+                        emailRedirectTo: window.location.origin + window.location.pathname,
+                        shouldCreateUser: true
+                    }
+                });
 
-// --- LOGOUT (unchanged but cleaned) ---
-async function handleLogout() {
-    if (supabaseClient) {
-        await supabaseClient.auth.signOut();
-    }
-    window.userHasPaid = false;
-    location.reload();
-}
+                if (error) throw error;
 
-      async function triggerRazorpayPayment() {
-    if (!supabaseClient) return;
+                msg.innerHTML = `
+                    <div class="p-4 bg-emerald-50 text-emerald-800 rounded-xl border border-emerald-200 text-left">
+                        <p class="font-bold mb-1 flex items-center gap-1.5">📩 Sign-in link sent!</p>
+                        <p class="text-xs leading-relaxed">
+                            We emailed a secure link to <strong>${email}</strong>.<br>
+                            Click the link in your inbox (check spam/junk if you don’t see it). You can close this window.
+                        </p>
+                    </div>`;
+                btnText.textContent = 'Link Sent ✓';
+            } catch (err) {
+                console.error("Magic link error:", err);
+                msg.innerHTML = `<div class="p-3 bg-red-50 text-red-700 rounded-xl border border-red-200 text-xs">${err.message || "Failed to send link. Please try again."}</div>`;
+                btnText.textContent = 'Send Sign-In Link';
+                btn.disabled = false;
+            } finally {
+                spinner.classList.add('hidden');
+            }
+        }
 
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    
-    if (!session) {
-        alert("Please log in first so we can activate full access for your account!");
-        openLoginModal();
-        return;
-    }
+        async function handleLogout() {
+            if (supabaseClient) await supabaseClient.auth.signOut();
+            window.userHasPaid = false;
+            location.reload();
+        }
 
-    const userEmail = session.user.email;
-    const userId = session.user.id;
+        async function triggerRazorpayPayment() {
+            if (!supabaseClient) return;
 
-    const options = {
-        key: RAZORPAY_KEY_ID,                    // Use Live key in production
-        amount: 1000,                            // ₹10 → 1000 paise
-        currency: "INR",
-        name: "Medical PG Cutoff Portal",
-        description: "1-Year Full Access (Buy Me a Chai ☕)",
-        image: "https://drankitraj8558.github.io/Medical-Colleges-PG-Cutoffs/favicon.ico", // optional
-        prefill: {
-            email: userEmail,
-            // contact: ""   // leave empty so user can enter their own number
-        },
-        notes: {
-            user_id: userId,
-            purpose: "1_year_full_access"
-        },
-        theme: {
-            color: "#4f46e5"
-        },
-        // Prefer UPI
-        method: {
-            upi: true,
-            card: true,
-            netbanking: true,
-            wallet: true
-        },
-        // This helps show QR more prominently
-        config: {
-            display: {
-                blocks: {
-                    utib: { // preferred banks (optional)
-                        name: "Pay using UPI",
-                        instruments: [
-                            {
-                                method: "upi"
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            
+            if (!session) {
+                alert("Please log in first so we can activate full access for your account!");
+                openLoginModal();
+                return;
+            }
+
+            const userEmail = session.user.email;
+            const userId = session.user.id;
+
+            const options = {
+                key: RAZORPAY_KEY_ID,
+                amount: 1000, 
+                currency: "INR",
+                name: "Medical PG Cutoff Portal",
+                description: "1-Year Full Access (Buy Me a Chai ☕)",
+                image: "https://drankitraj8558.github.io/Medical-Colleges-PG-Cutoffs/favicon.ico",
+                prefill: { email: userEmail },
+                notes: { user_id: userId, purpose: "1_year_full_access" },
+                theme: { color: "#4f46e5" },
+                method: { upi: true, card: true, netbanking: true, wallet: true },
+                config: {
+                    display: {
+                        blocks: {
+                            utib: {
+                                name: "Pay using UPI",
+                                instruments: [{ method: "upi" }]
                             }
-                        ]
+                        },
+                        sequence: ["block.utib"],
+                        preferences: { show_default_blocks: true }
                     }
                 },
-                sequence: ["block.utib"],
-                preferences: {
-                    show_default_blocks: true
-                }
-            }
-        },
-    handler: async function (response) {
-    if (response.razorpay_payment_id) {
-        const { error } = await supabaseClient
-            .from('profiles')
-            .upsert({
-                id: userId,
-                is_paid: true,
-                razorpay_payment_id: response.razorpay_payment_id,
-                updated_at: new Date().toISOString()
-            }, {
-                onConflict: 'id'
-            });
+                handler: async function (response) {
+                    if (response.razorpay_payment_id) {
+                        const { error } = await supabaseClient
+                            .from('profiles')
+                            .upsert({
+                                id: userId,
+                                is_paid: true,
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                updated_at: new Date().toISOString()
+                            }, { onConflict: 'id' });
 
-        if (error) {
-            console.error("Supabase update error:", error);
-            alert("Payment succeeded, but updating account failed.\nPayment ID: " + response.razorpay_payment_id + "\nError: " + error.message);
-        } else {
-            alert("🎉 Payment Successful! Full portal access unlocked for 1 year.");
-            window.userHasPaid = true;
-            filterAndRender();
+                        if (error) {
+                            console.error("Supabase update error:", error);
+                            alert("Payment succeeded, but updating account failed.\nPayment ID: " + response.razorpay_payment_id + "\nError: " + error.message);
+                        } else {
+                            alert("🎉 Payment Successful! Full portal access unlocked for 1 year.");
+                            window.userHasPaid = true;
+                            filterAndRender();
+                        }
+                    }
+                },
+                modal: { ondismiss: function() { console.log("Payment modal closed"); } }
+            };
+
+            const rzp = new Razorpay(options);
+            rzp.on('payment.failed', function (response) { alert("Payment failed: " + response.error.description); });
+            rzp.open();
         }
-    }
-    },
-        modal: {
-            ondismiss: function() {
-                console.log("Payment modal closed");
-            }
-        }
-    };
 
-    const rzp = new Razorpay(options);
-    
-    rzp.on('payment.failed', function (response) {
-        alert("Payment failed: " + response.error.description);
-    });
-
-    rzp.open();
-}
-        // Modal Controls
         window.openLoginModal = function() {
             const modal = document.getElementById('loginModal');
             if (modal) {
@@ -518,8 +458,9 @@ async function handleLogout() {
         });
 
         // ============================================================
-        // 📁 DATASET & FILTERING LOGIC
+        // 📁 DATASET & CASCADING DYNAMIC FILTER LOGIC
         // ============================================================
+        // Simply add new JSON filenames here in the future!
         const jsonFiles = [
             'NEETPG_2024_ROUND1.json',
             'NEETPG_2024_ROUND2.json',
@@ -534,7 +475,7 @@ async function handleLogout() {
         ];
 
         let allData = [];
-        let allCoursesList = [];
+        let filteredCoursesList = [];
         let selectedCourseValue = "";
 
         const rankInput = document.getElementById('rankInput');
@@ -551,6 +492,7 @@ async function handleLogout() {
         const resultsCount = document.getElementById('resultsCount');
         const resetBtn = document.getElementById('resetBtn');
 
+        // Fetch Datasets
         Promise.all(
             jsonFiles.map(file => 
                 fetch(`./${file}`)
@@ -570,7 +512,10 @@ async function handleLogout() {
                 return;
             }
 
-            populateDynamicDropdowns(allData);
+            // Initial population of Exam dropdown
+            populateExamsDropdown(allData);
+            // Build dynamic cascading options for dependent dropdowns
+            updateCascadingDropdowns();
             filterAndRender();
         })
         .catch(err => {
@@ -578,16 +523,37 @@ async function handleLogout() {
             tableBody.innerHTML = `<tr><td colspan="8" class="py-8 text-center text-red-500 font-semibold">Error loading datasets.</td></tr>`;
         });
 
-        function populateDynamicDropdowns(data) {
+        // Step 1: Populates top-level Exam options
+        function populateExamsDropdown(data) {
             const exams = new Set();
+            data.forEach(item => { if (item.Exam) exams.add(String(item.Exam)); });
+
+            examFilter.innerHTML = '<option value="">All Exams</option>';
+            Array.from(exams).sort().forEach(exam => {
+                examFilter.innerHTML += `<option value="${exam}">${exam}</option>`;
+            });
+        }
+
+        // Step 2: CASCADING ENGINE - Recalculates lower dropdowns based on upper selections
+        function updateCascadingDropdowns() {
+            const selectedExam = examFilter.value;
+            const selectedYear = yearFilter.value;
+            const selectedRound = roundFilter.value;
+
+            // Filter data scope for current exam selection
+            let subset = allData;
+            if (selectedExam) {
+                subset = subset.filter(i => String(i.Exam) === selectedExam);
+            }
+
+            // Extract unique available values from active subset
             const years = new Set();
             const rounds = new Set();
             const quotas = new Set();
             const categories = new Set();
             const courses = new Set();
 
-            data.forEach(item => {
-                if (item.Exam) exams.add(String(item.Exam));
+            subset.forEach(item => {
                 if (item.Year) years.add(String(item.Year));
                 if (item.Round) rounds.add(String(item.Round));
                 if (item.Allotted_Quota) quotas.add(String(item.Allotted_Quota));
@@ -595,26 +561,38 @@ async function handleLogout() {
                 if (item.Course) courses.add(String(item.Course));
             });
 
-            const fillSelect = (selectElem, setValues) => {
-                const defaultOption = selectElem.options[0].outerHTML;
-                selectElem.innerHTML = defaultOption;
+            // Helper to refresh options while keeping existing valid selection
+            const refreshSelect = (selectElem, setValues, defaultText) => {
+                const currentVal = selectElem.value;
+                selectElem.innerHTML = `<option value="">${defaultText}</option>`;
                 Array.from(setValues).sort().forEach(val => {
                     selectElem.innerHTML += `<option value="${val}">${val}</option>`;
                 });
+                if (setValues.has(currentVal)) {
+                    selectElem.value = currentVal;
+                } else {
+                    selectElem.value = ""; // Auto-reset invalid option across exams!
+                }
             };
 
-            fillSelect(examFilter, exams);
-            fillSelect(yearFilter, years);
-            fillSelect(roundFilter, rounds);
-            fillSelect(quotaFilter, quotas);
-            fillSelect(categoryFilter, categories);
+            refreshSelect(yearFilter, years, "All Years");
+            refreshSelect(roundFilter, rounds, "All Rounds");
+            refreshSelect(quotaFilter, quotas, "All Quotas");
+            refreshSelect(categoryFilter, categories, "All Categories");
 
-            allCoursesList = Array.from(courses).sort();
+            filteredCoursesList = Array.from(courses).sort();
+
+            // Reset course text field if selected course doesn't exist in active exam subset
+            if (selectedCourseValue && !courses.has(selectedCourseValue)) {
+                selectedCourseValue = "";
+                courseInput.value = "";
+            }
         }
 
+        // Course Dropdown Combobox UI
         function renderCourseDropdown(filterText = "") {
             const query = filterText.toLowerCase().trim();
-            const matches = allCoursesList.filter(c => c.toLowerCase().includes(query));
+            const matches = filteredCoursesList.filter(c => c.toLowerCase().includes(query));
 
             let html = `<div class="p-2.5 text-xs font-bold text-indigo-700 bg-indigo-50/50 hover:bg-indigo-100 cursor-pointer border-b flex justify-between items-center" onclick="selectCourse('')"><span>All Courses (Clear Filter)</span><span class="text-[10px] text-slate-400">RESET</span></div>`;
 
@@ -651,6 +629,7 @@ async function handleLogout() {
             if (!courseWrapper.contains(e.target) && !courseDropdown.contains(e.target)) courseDropdown.classList.add('hidden');
         });
 
+        // Filter and Render Table
         function filterAndRender() {
             const userRank = parseInt(rankInput.value);
             const searchVal = searchInput.value.toLowerCase().trim();
@@ -691,7 +670,7 @@ async function handleLogout() {
                 return;
             }
 
-            // DYNAMIC PERCENTAGE PREVIEW: ~15% preview (min 3, max 25 rows)
+            // Free preview limit
             let freePreviewCount = Math.ceil(totalMatches * 0.15);
             if (freePreviewCount < 3) freePreviewCount = 3;
             if (freePreviewCount > 25) freePreviewCount = 25;
@@ -744,7 +723,6 @@ async function handleLogout() {
                 `;
             });
 
-            // Friendly Chai Paywall Banner
             if (isPaywalled) {
                 const hiddenCount = totalMatches - freePreviewCount;
                 rows += `
@@ -774,7 +752,13 @@ async function handleLogout() {
                 : (totalMatches > displayLimit ? `Showing first ${displayLimit} of ${totalMatches.toLocaleString()} eligible cutoffs` : `Showing all ${totalMatches.toLocaleString()} eligible cutoffs`);
         }
 
-        [rankInput, searchInput, examFilter, yearFilter, roundFilter, quotaFilter, categoryFilter].forEach(elem => {
+        // Attach cascading update listeners
+        examFilter.addEventListener('change', () => {
+            updateCascadingDropdowns();
+            filterAndRender();
+        });
+
+        [rankInput, searchInput, yearFilter, roundFilter, quotaFilter, categoryFilter].forEach(elem => {
             elem.addEventListener('input', filterAndRender);
             elem.addEventListener('change', filterAndRender);
         });
@@ -789,6 +773,7 @@ async function handleLogout() {
             categoryFilter.value = '';
             selectedCourseValue = '';
             courseInput.value = '';
+            updateCascadingDropdowns();
             filterAndRender();
         });
     </script>
