@@ -148,7 +148,42 @@
 
     </main>
 
-<!-- 1️⃣ LOGIN MODAL -->
+<!-- ==================== LOGIN GATE (Disclaimer + Checkbox) ==================== -->
+<div id="loginGateModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-[55] p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 sm:p-8 relative">
+        <button onclick="closeLoginGate()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-2xl leading-none font-light cursor-pointer">&times;</button>
+
+        <div class="text-center mb-5">
+            <div class="mx-auto w-14 h-14 bg-amber-100 rounded-full flex items-center justify-center mb-3">
+                <span class="text-2xl">📜</span>
+            </div>
+            <h3 class="text-xl font-extrabold text-slate-900">Before you continue</h3>
+            <p class="text-sm text-slate-500 mt-1">Please read and accept the disclaimer</p>
+        </div>
+
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs text-slate-600 leading-relaxed max-h-48 overflow-y-auto mb-5">
+            <p class="font-semibold text-amber-800 mb-2">⚠️ Unofficial Student Reference Portal</p>
+            <p class="mb-2">This website is <strong>not affiliated</strong> with MCC, NBE, AIIMS or any government body. All data is compiled from publicly available allotment lists for reference only.</p>
+            <p class="mb-2">Always verify final allotments on official websites. The ₹10 fee only unlocks full search access and does not guarantee any admission.</p>
+            <p>By proceeding you accept the full Terms & Legal Disclaimer.</p>
+        </div>
+
+        <label class="flex items-start gap-3 cursor-pointer mb-6">
+            <input type="checkbox" id="disclaimerCheckbox" class="mt-1 w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
+            <span class="text-sm text-slate-700">
+                I have read and agree to the 
+                <button type="button" onclick="openDisclaimerModal()" class="text-indigo-600 underline font-medium">Legal Disclaimer & Terms</button>
+            </span>
+        </label>
+
+        <button id="continueToLoginBtn" onclick="proceedToLogin()" disabled
+                class="w-full bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-xl text-sm transition-all">
+            Continue to Login
+        </button>
+    </div>
+</div>
+
+<!-- ==================== ACTUAL LOGIN MODAL ==================== -->
 <div id="loginModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-[50] p-4">
     <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8 relative">
         <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-2xl leading-none font-light cursor-pointer">&times;</button>
@@ -174,19 +209,16 @@
         </button>
 
         <div class="relative my-5">
-            <div class="absolute inset-0 flex items-center">
-                <div class="w-full border-t border-slate-200"></div>
-            </div>
+            <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-200"></div></div>
             <div class="relative flex justify-center text-xs">
                 <span class="bg-white px-3 text-slate-400 font-medium uppercase tracking-wider">or continue with email</span>
             </div>
         </div>
 
-        <!-- Email Form -->
-        <div id="login-form-container" class="space-y-4">
+        <div class="space-y-4">
             <div>
                 <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wide mb-1.5">Email Address</label>
-                <input type="email" id="auth-email-input" placeholder="name@example.com" 
+                <input type="email" id="auth-email-input" placeholder="name@example.com"
                        class="w-full p-3.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
             </div>
             <button onclick="handleMagicLinkLogin()" id="magic-link-btn"
@@ -200,20 +232,12 @@
         </div>
 
         <div id="auth-message" class="mt-5 text-sm text-center leading-relaxed"></div>
-        
-        <p class="mt-6 text-center text-xs text-slate-400">
-            By continuing, you agree to our 
-            <button type="button" onclick="openDisclaimerModal()" class="text-indigo-600 underline font-medium cursor-pointer">Terms & Legal Disclaimer</button>. 
-            This is an unofficial student reference portal.
-        </p>
     </div>
 </div>
 
-<!-- 2️⃣ LEGAL DISCLAIMER MODAL (z-[60] keeps it safely on top if opened from inside login) -->
+<!-- ==================== DISCLAIMER MODAL (Simple - for Footer) ==================== -->
 <div id="disclaimerModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-[60] p-4">
     <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 sm:p-8 relative max-h-[85vh] flex flex-col">
-        
-        <!-- Header -->
         <div class="flex items-center justify-between border-b pb-4 mb-4">
             <h3 class="text-xl font-extrabold text-slate-900 flex items-center gap-2">
                 <span>📜</span> Legal Disclaimer & Terms of Use
@@ -221,34 +245,28 @@
             <button type="button" onclick="closeDisclaimerModal()" class="text-slate-400 hover:text-slate-600 text-2xl leading-none font-light cursor-pointer">&times;</button>
         </div>
 
-        <!-- Scrollable Content -->
         <div class="overflow-y-auto space-y-4 text-xs text-slate-600 leading-relaxed pr-2">
             <div class="bg-amber-50 border border-amber-200 p-3 rounded-xl text-amber-900 font-medium">
                 ⚠️ <strong>Unofficial Portal Notice:</strong> This website is an independent reference tool and is NOT affiliated with, endorsed by, or connected to MCC, NBE, AIIMS, or DGHS.
             </div>
-
             <div>
                 <h4 class="font-bold text-slate-800 text-sm mb-1">1. Non-Official & Independent Status</h4>
-                <p>All official counseling procedures, seat allotments, and cutoff notifications are subject strictly to official bodies. Users are strongly advised to verify all allotments directly on official government portals (e.g., <code>mcc.nic.in</code>, <code>aiimsexams.ac.in</code>).</p>
+                <p>All official counseling procedures, seat allotments, and cutoff notifications are subject strictly to official bodies. Users are strongly advised to verify all allotments directly on official government portals (e.g., mcc.nic.in, aiimsexams.ac.in).</p>
             </div>
-
             <div>
                 <h4 class="font-bold text-slate-800 text-sm mb-1">2. Limitation of Liability</h4>
                 <p>While every effort is made to compile allotment data accurately from public allotment PDFs, this website makes no guarantees regarding accuracy or completeness. The developer or platform shall not be held legally liable for any loss, administrative errors, or missed counseling deadlines arising from the use of this portal.</p>
             </div>
-
             <div>
                 <h4 class="font-bold text-slate-800 text-sm mb-1">3. Fair Use & Trademarks</h4>
                 <p>All trademarks, exam names (NEET PG, INI-CET), and institute names (AIIMS, MAMC, PGIMER) belong to their respective statutory owners. Their mention here is strictly for descriptive and reference purposes under Fair Use.</p>
             </div>
-
             <div>
                 <h4 class="font-bold text-slate-800 text-sm mb-1">4. Payments & Access</h4>
                 <p>The ₹10 contribution fee is a voluntary digital access contribution meant strictly to cover server operational costs and database maintenance. It does not guarantee admission or predict future allotment rounds.</p>
             </div>
         </div>
 
-        <!-- Footer Button -->
         <div class="border-t pt-4 mt-4 flex justify-end">
             <button type="button" onclick="closeDisclaimerModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition cursor-pointer">
                 I Understand & Accept
@@ -746,11 +764,31 @@
                 return;
             }
 
-            // Free preview limit
-            let freePreviewCount = Math.ceil(totalMatches * 0.15);
-            if (freePreviewCount < 3) freePreviewCount = 3;
-            if (freePreviewCount > 25) freePreviewCount = 25;
+           // ========== SMART FREE PREVIEW LOGIC ==========
+const hasAnyFilter = examFilter.value || yearFilter.value || roundFilter.value || 
+                     quotaFilter.value || categoryFilter.value || 
+                     selectedCourseValue || rankInput.value || searchInput.value;
 
+let freePreviewCount = 0;
+
+if (!hasAnyFilter) {
+    // No filters applied → show generous 50
+    freePreviewCount = 50;
+} else {
+    // Progressive reduction based on result count
+    if (totalMatches <= 15) {
+        freePreviewCount = 0;          // Force payment
+    } else if (totalMatches <= 40) {
+        freePreviewCount = 5;
+    } else if (totalMatches <= 100) {
+        freePreviewCount = 10;
+    } else if (totalMatches <= 300) {
+        freePreviewCount = 20;
+    } else {
+        freePreviewCount = 30;
+    }
+}
+// ==============================================
             const displayLimit = 200;
             let displayData = data;
             let isPaywalled = false;
@@ -852,58 +890,75 @@
             updateCascadingDropdowns();
             filterAndRender();
         });
-// --- MODAL CONTROLLERS ---
+// ========== MODAL CONTROLLERS ==========
 
-        // Login Modal Functions
-        window.openLoginModal = function() {
-            const modal = document.getElementById('loginModal');
-            if (modal) {
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-            }
-        };
+// Login button → first show Gate (disclaimer + checkbox)
+window.openLoginModal = function() {
+    document.getElementById('disclaimerCheckbox').checked = false;
+    document.getElementById('continueToLoginBtn').disabled = true;
+    const gate = document.getElementById('loginGateModal');
+    gate.classList.remove('hidden');
+    gate.classList.add('flex');
+};
 
-        window.closeLoginModal = function() {
-            const modal = document.getElementById('loginModal');
-            if (modal) {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            }
-        };
+window.closeLoginGate = function() {
+    const gate = document.getElementById('loginGateModal');
+    gate.classList.add('hidden');
+    gate.classList.remove('flex');
+};
 
-        // Disclaimer Modal Functions
-        window.openDisclaimerModal = function() {
-            const modal = document.getElementById('disclaimerModal');
-            if (modal) {
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-            }
-        };
+// After checkbox is ticked → open real login
+window.proceedToLogin = function() {
+    closeLoginGate();
+    const login = document.getElementById('loginModal');
+    login.classList.remove('hidden');
+    login.classList.add('flex');
+};
 
-        window.closeDisclaimerModal = function() {
-            const modal = document.getElementById('disclaimerModal');
-            if (modal) {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            }
-        };
+// Simple Disclaimer (for Footer)
+window.openDisclaimerModal = function() {
+    const modal = document.getElementById('disclaimerModal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+};
 
-        // Independent Backdrop Clicks
-        window.addEventListener('DOMContentLoaded', () => {
-            const loginM = document.getElementById('loginModal');
-            if (loginM) {
-                loginM.addEventListener('click', (e) => {
-                    if (e.target === loginM) closeLoginModal();
-                });
-            }
+window.closeDisclaimerModal = function() {
+    const modal = document.getElementById('disclaimerModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+};
 
-            const discM = document.getElementById('disclaimerModal');
-            if (discM) {
-                discM.addEventListener('click', (e) => {
-                    if (e.target === discM) closeDisclaimerModal();
-                });
-            }
+window.closeLoginModal = function() {
+    const modal = document.getElementById('loginModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+};
+
+// Enable Continue button only when checkbox is checked
+document.addEventListener('DOMContentLoaded', () => {
+    const checkbox = document.getElementById('disclaimerCheckbox');
+    const continueBtn = document.getElementById('continueToLoginBtn');
+    
+    if (checkbox && continueBtn) {
+        checkbox.addEventListener('change', () => {
+            continueBtn.disabled = !checkbox.checked;
         });
+    }
+
+    // Backdrop clicks
+    ['loginGateModal', 'loginModal', 'disclaimerModal'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('click', (e) => {
+                if (e.target === el) {
+                    if (id === 'loginGateModal') closeLoginGate();
+                    if (id === 'loginModal') closeLoginModal();
+                    if (id === 'disclaimerModal') closeDisclaimerModal();
+                }
+            });
+        }
+    });
+});
     </script>
             <!-- Footer Section -->
 <footer class="max-w-7xl mx-auto px-4 py-8 text-center border-t border-slate-200 mt-12">
