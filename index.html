@@ -826,6 +826,27 @@
             updateCascadingDropdowns();
             filterAndRender();
         });
+        // --- DISCLAIMER MODAL CONTROLS ---
+window.openDisclaimerModal = function() {
+    const modal = document.getElementById('disclaimerModal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+};
+
+window.closeDisclaimerModal = function() {
+    const modal = document.getElementById('disclaimerModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+};
+
+// Close disclaimer modal when clicking outside of it
+document.getElementById('disclaimerModal').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('disclaimerModal')) closeDisclaimerModal();
+});
         <!-- Footer Section -->
 <footer class="max-w-7xl mx-auto px-4 py-8 text-center border-t border-slate-200 mt-12">
     <p class="text-xs text-slate-500">
