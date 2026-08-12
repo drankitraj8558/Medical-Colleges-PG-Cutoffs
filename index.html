@@ -466,9 +466,13 @@
     };
 
     // This line must be outside the options object
-    const rzp = new Razorpay(options);
-    rzp.open();
-}
+   const rzp = new Razorpay(options);
+
+rzp.on('payment.failed', function (response) {
+    alert("Payment failed: " + response.error.description);
+});
+
+rzp.open();
 
         // ========== MODAL CONTROLS ==========
         window.openLoginModal = function() {
