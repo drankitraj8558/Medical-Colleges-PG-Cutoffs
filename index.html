@@ -798,6 +798,44 @@ function normalizeCourseName(rawCourse) {
     // Fallback cleaner
     return str.replace(/\s+/g, ' ').replace(/\s*,\s*/g, ', ').replace(/\s*-\s*/g, ' - ');
 }
+        // 🎟️ MASTER QUOTA NORMALIZER (Precise MCC Merging + Individual INI-CET Quotas)
+const QUOTA_DICTIONARY = [
+    // --- INI-CET Quotas (Kept Individual) ---
+    { pattern: /INI-?CET.*INSTITUTIONAL|AIIMS.*INTERNAL|INSTITUTIONAL.*PREFERENCE/i, standard: 'INI-CET (Institutional / Internal Quota)' },
+    { pattern: /JIPMER.*INTERNAL|JIPMER.*QUOTA/i, standard: 'INI-CET (JIPMER Internal Quota)' },
+    { pattern: /NIMHANS.*DOMICILE|KARNATAKA.*DOMICILE/i, standard: 'INI-CET (NIMHANS Domicile Quota)' },
+    { pattern: /RURAL AREA SERVICE|RAS/i, standard: 'INI-CET (Rural Area Service - RAS Quota)' },
+    { pattern: /INI-?CET.*OPEN|INI-?CET.*GENERAL/i, standard: 'INI-CET (Open Seat Quota)' },
+    { pattern: /^INI-?CET Quota$/i, standard: 'INI-CET Open Quota' },
+
+    // --- NEET PG / MCC Quotas (Merged & Standardized) ---
+    { pattern: /^AI$|^ALL INDIA$/i, standard: 'All India Quota (AIQ)' },
+    { pattern: /^AM$|ALIGARH MUSLIM/i, standard: 'Aligarh Muslim University (AMU) Quota' },
+    { pattern: /^BH$|BANARAS HINDU/i, standard: 'Banaras Hindu University (BHU) Quota' },
+    { pattern: /^DU$|DELHI UNIVERSITY/i, standard: 'Delhi University (DU) Quota' },
+    { pattern: /^IP$|IP UNIVERSITY/i, standard: 'IP University (IPU) Quota' },
+    { pattern: /^AF$|ARMED FORCES/i, standard: 'Armed Forces Medical Services (AFMS)' },
+    { pattern: /^JM$|JAIN MINORITY/i, standard: 'Jain Minority Quota' },
+    { pattern: /^MM$|MUSLIM MINORITY/i, standard: 'Muslim Minority Quota' },
+    { pattern: /^NR$|NON-?\s*RESIDENT/i, standard: 'Non-Resident Indian (NRI) Quota' },
+    { pattern: /^PS$|MANAGEMENT|PAID SEAT/i, standard: 'Management / Paid Seats Quota' },
+    { pattern: /SELF-?\s*FINANCE/i, standard: 'Self-Financed Merit Quota' },
+    { pattern: /^DNB/i, standard: 'DNB Quota' }
+];
+
+function normalizeQuotaName(rawQuota) {
+    if (!rawQuota) return "Open / General Quota";
+
+    let str = rawQuota.trim();
+
+    for (const item of QUOTA_DICTIONARY) {
+        if (item.pattern.test(str)) {
+            return item.standard;
+        }
+    }
+
+    return str; // Preserves unmapped specific quotas cleanly
+}
 
         // 🔍 DEDUPLICATED SEARCH SUGGESTIONS GENERATOR
         function renderSearchSuggestions(query) {
@@ -907,7 +945,8 @@ function normalizeCourseName(rawCourse) {
                 return {
                     ...item,
                     Display_Institute: getCanonicalCollegeIdentity(item.Allotted_Institute),
-                    Display_Course: normalizeCourseName(item.Course)
+                  Display_Course: normalizeCourseName(item.Course),
+                    Display_Quota: normalizeQuotaName(item.Allotted_Quota)
                 };
             });
 
