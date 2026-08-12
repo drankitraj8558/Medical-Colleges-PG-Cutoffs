@@ -528,13 +528,22 @@ rzp.open();
         const resultsCount = document.getElementById('resultsCount');
         const resetBtn = document.getElementById('resetBtn');
 
-        Promise.all(jsonFiles.map(f => fetch(`./${f}`).then(r => r.ok ? r.json() : []).catch(() => [])))
-        .then(datasets => {
-            allData = datasets.flat();
-            if (allData.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="8" class="py-10 text-center text-red-500">No data loaded</td></tr>`;
-                return;
-            }
+       Promise.all(jsonFiles.map(f => fetch(`./${f}`).then(r => r.ok ? r.json() : []).catch(() => [])))
+.then(datasets => {
+    const rawData = datasets.flat();
+
+    allData = rawData.map(item => {
+        return {
+            ...item,
+            Display_Institute: getCanonicalCollegeIdentity(item.Allotted_Institute),
+            Display_Course: normalizeCourseName(item.Course)
+        };
+    });
+
+    if (allData.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="8" class="py-10 text-center text-red-500">No data loaded</td></tr>`;
+        return;
+    }
 
             const instSet = new Set();
             const citySet = new Set();
@@ -889,6 +898,146 @@ window.closeContactModal = function() {
 document.getElementById('contactModal')?.addEventListener('click', function(e) {
     if (e.target === this) closeContactModal();
 });
+        // 🏥 POPULAR ACRONYM DICTIONARY (Add or edit any key medical acronyms here!)
+const FAMOUS_ACRONYMS = [
+    { keywords: ['MAULANA AZAD', 'MAMC'], abbreviation: 'MAMC' },
+    { keywords: ['LADY HARDINGE', 'LHMC'], abbreviation: 'LHMC' },
+    { keywords: ['RAM MANOHAR LOHIA', 'RML', 'ABVIMS'], abbreviation: 'ABVIMS / RML' },
+    { keywords: ['VARDHMAN', 'SAFDARJUNG', 'VMMCH'], abbreviation: 'VMMCH / Safdarjung' },
+    { keywords: ['UNIVERSITY COLLEGE OF MEDICAL', 'UCMS'], abbreviation: 'UCMS' },
+    { keywords: ['KING GEORGE', 'KGMU'], abbreviation: 'KGMU' },
+    { keywords: ['POSTGRADUATE INSTITUTE', 'PGIMER CHANDIGARH'], abbreviation: 'PGIMER' },
+    { keywords: ['JAWAHARLAL INSTITUTE', 'JIPMER'], abbreviation: 'JIPMER' },
+    { keywords: ['ALL INDIA INSTITUTE OF MEDICAL SCIENCES', 'AIIMS NEW DELHI'], abbreviation: 'AIIMS New Delhi' },
+    { keywords: ['LOK NAYAK', 'LNJP'], abbreviation: 'LNJP' },
+    { keywords: ['SARDAR VALLABHBHAI PATEL', 'SVBP'], abbreviation: 'SVBP' },
+    { keywords: ['MADRAS MEDICAL COLLEGE'], abbreviation: 'MMC Chennai' },
+    { keywords: ['BANGALORE MEDICAL COLLEGE'], abbreviation: 'BMCRI' },
+    { keywords: ['GRANT MEDICAL COLLEGE', 'JJ HOSPITAL'], abbreviation: 'GMC JJ Mumbai' },
+    { keywords: ['SETH GS', 'KEM HOSPITAL'], abbreviation: 'KEM Mumbai' }
+];
+
+// 🎯 SMART COLLEGE NORMALIZER (Full Name + Acronym Bracket + PIN Code)
+function getCanonicalCollegeIdentity(rawName) {
+    if (!rawName) return "N/A";
+
+    let str = rawName.toUpperCase().trim();
+
+    // 1. Extract 6-digit PIN code for location safety
+    const pinMatch = str.match(/\b\d{6}\b/);
+    const pinCode = pinMatch ? pinMatch[0] : null;
+
+    // 2. Clean up address garbage and local street names
+    let cleanTitle = str
+        .replace(/\b\d{6}\b/g, '') // Strip PIN from title text
+        .replace(/\b(NEAR|OPP|OPPOSITE|STREET|ROAD|MARG|CAMPUS|NCT|DIST|DISTRICT|CANNAUGHT PLACE|BABA KHARAK SINGH)\b.*$/i, '') 
+        .replace(/\s+/g, ' ')
+        .replace(/\s*,\s*/g, ', ')
+        .replace(/\s*-\s*/g, ' - ');
+
+    // 3. Deduplicate repeating segments inside the string
+    const segments = cleanTitle.split(',').map(s => s.trim()).filter(Boolean);
+    const uniqueSegments = [...new Set(segments)];
+    let coreName = uniqueSegments.slice(0, 2).join(', ');
+
+    // Standardize title casing & abbreviations
+    coreName = coreName
+        .replace(/\bDR\.?\b/gi, 'Dr.')
+        .replace(/\bGOVT\.?\b/gi, 'Government')
+        .replace(/\bMED\b/gi, 'Medical')
+        .replace(/\bCOLL?\b/gi, 'College')
+        .replace(/\bHOSP?\b/gi, 'Hospital')
+        .replace(/\bINST\b/gi, 'Institute');
+
+    // 4. Find matching Acronym (or generate automatic fallback acronym)
+    let detectedAcronym = "";
+
+    // Check against famous medical colleges dictionary
+    for (const item of FAMOUS_ACRONYMS) {
+        if (item.keywords.some(kw => str.includes(kw))) {
+            detectedAcronym = item.abbreviation;
+            break;
+        }
+    }
+
+    // Fallback: If not in dictionary, auto-generate acronym from capital initials (e.g. GMC, RIMS)
+    if (!detectedAcronym) {
+        const words = coreName.split(' ').filter(w => w.length > 2 && !['AND', 'FOR', 'THE', 'OF'].includes(w.toUpperCase()));
+        if (words.length >= 2) {
+            detectedAcronym = words.map(w => w[0].toUpperCase()).join('');
+        }
+    }
+
+    // 5. Format Output Display: "Full College Name [ACRONYM] (PIN/City)"
+    const acronymBracket = detectedAcronym ? ` [${detectedAcronym}]` : '';
+    const pinSuffix = pinCode ? ` (${pinCode})` : '';
+
+    return `${coreName}${acronymBracket}${pinSuffix}`;
+}
+        // 🩺 MEDICAL COURSE DICTIONARY (Standardizes spellings, dashes & prefixes)
+const COURSE_DICTIONARY = [
+    { pattern: /RADIO-?DIAGNOSIS|RADIOLOGY/i, standard: 'MD (Radiodiagnosis)' },
+    { pattern: /GENERAL MEDICINE/i, standard: 'MD (General Medicine)' },
+    { pattern: /GENERAL SURGERY/i, standard: 'MS (General Surgery)' },
+    { pattern: /OBSTETRICS.*GYNAECOLOGY|OBGYN|OBS.*GYN/i, standard: 'MD/MS (Obstetrics & Gynaecology)' },
+    { pattern: /ANAESTHESIOLOGY|ANESTHESIOLOGY|ANAESTHESIA/i, standard: 'MD (Anaesthesiology)' },
+    { pattern: /PAEDIATRICS|PEDIATRICS/i, standard: 'MD (Paediatrics)' },
+    { pattern: /DERMATOLOGY|DVL|VENEREOLOGY|LEPROSY/i, standard: 'MD (Dermatology, Venereology & Leprosy)' },
+    { pattern: /ORTHOPAEDICS|ORTHOPEDICS/i, standard: 'MS (Orthopaedics)' },
+    { pattern: /OPHTHALMOLOGY/i, standard: 'MS (Ophthalmology)' },
+    { pattern: /OTORHINOLARYNGOLOGY|\bENT\b/i, standard: 'MS (ENT / Otorhinolaryngology)' },
+    { pattern: /PSYCHIATRY/i, standard: 'MD (Psychiatry)' },
+    { pattern: /PATHOLOGY/i, standard: 'MD (Pathology)' },
+    { pattern: /COMMUNITY MEDICINE|PREVENTIVE.*SOCIAL/i, standard: 'MD (Community Medicine / PSM)' },
+    { pattern: /MICROBIOLOGY/i, standard: 'MD (Microbiology)' },
+    { pattern: /PHARMACOLOGY/i, standard: 'MD (Pharmacology)' },
+    { pattern: /PHYSIOLOGY/i, standard: 'MD (Physiology)' },
+    { pattern: /ANATOMY/i, standard: 'MD (Anatomy)' },
+    { pattern: /BIOCHEMISTRY/i, standard: 'MD (Biochemistry)' },
+    { pattern: /EMERGENCY MEDICINE/i, standard: 'MD (Emergency Medicine)' },
+    { pattern: /NUCLEAR MEDICINE/i, standard: 'MD (Nuclear Medicine)' },
+    { pattern: /RADIATION ONCOLOGY|RADIOTHERAPY/i, standard: 'MD (Radiation Oncology / Radiotherapy)' },
+    { pattern: /PULMONARY MEDICINE|RESPIRATORY|TUBERCULOSIS|CHEST MEDICINE/i, standard: 'MD (Respiratory / Pulmonary Medicine)' },
+    { pattern: /PHYSICAL MEDICINE|PMR/i, standard: 'MD (Physical Medicine & Rehabilitation)' },
+    { pattern: /FORENSIC MEDICINE/i, standard: 'MD (Forensic Medicine)' },
+    { pattern: /HOSPITAL ADMINISTRATION/i, standard: 'MD (Hospital Administration)' },
+    { pattern: /IMMUNOHEMATOLOGY|BLOOD TRANSFUSION|TRANSFUSION MEDICINE/i, standard: 'MD (Transfusion Medicine)' }
+];
+
+// ⚡ AUTOMATED COURSE CLEANER
+function normalizeCourseName(rawCourse) {
+    if (!rawCourse) return "N/A";
+
+    let str = rawCourse.trim().toUpperCase();
+
+    // 1. Check against Dictionary
+    for (const item of COURSE_DICTIONARY) {
+        if (item.pattern.test(str)) {
+            // DNB Degree Retention
+            if (/\bDNB\b/i.test(str) || /DIPLOMATE OF NATIONAL BOARD/i.test(str)) {
+                return item.standard.replace(/MD|MS|MD\/MS/g, 'DNB');
+            }
+            // Diploma Retention
+            if (/\bDIPLOMA\b/i.test(str)) {
+                return item.standard.replace(/MD|MS|MD\/MS/g, 'Diploma in');
+            }
+            return item.standard;
+        }
+    }
+
+    // 2. Generic Fallback Cleaner (For niche sub-specialties & Dental courses)
+    let clean = str
+        .replace(/\bM\.?D\.?\b/gi, 'MD')
+        .replace(/\bM\.?S\.?\b/gi, 'MS')
+        .replace(/\bD\.?N\.?B\.?\b/gi, 'DNB')
+        .replace(/\s+/g, ' ')
+        .replace(/\s*,\s*/g, ', ')
+        .replace(/\s*-\s*/g, ' - ')
+        .replace(/\s*\&\s*|\s+AND\s+/gi, ' & ');
+
+    // Convert to Title Case (e.g. "M.D. CARDIOLOGY" -> "MD Cardiology")
+    return clean.replace(/\w\S*/g, txt => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
+}
     </script>
 <!-- ==================== CONTACT BUTTON + MODAL ==================== -->
 <!-- Floating Contact Button -->
