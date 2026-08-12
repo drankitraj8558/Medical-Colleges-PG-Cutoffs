@@ -822,7 +822,7 @@ searchInput.addEventListener('input', () => {
     renderSearchDropdown(searchInput.value); // dropdown stays fast
     debouncedFilter();                       // heavy filtering is delayed
 });
-        });
+        
         searchInput.addEventListener('focus', () => renderSearchDropdown(searchInput.value));
         searchInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && searchInput.value.trim().length >= 2) {
