@@ -773,8 +773,8 @@ rzp.open();
                     <tr class="${rowBg} transition-colors">
                         <td class="py-3 px-4 sm:px-6"><span class="font-bold">${item.Exam || 'NEET PG'}</span><span class="block text-xs text-slate-500">${item.Year || ''}</span></td>
                         <td class="py-3 px-4 sm:px-6 text-xs font-semibold">${item.Round || ''}</td>
-                        <td class="py-3 px-4 sm:px-6 font-medium">${item.Allotted_Institute || 'N/A'}${badge}</td>
-                        <td class="py-3 px-4 sm:px-6">${item.Course || 'N/A'}</td>
+                       <td class="py-3 px-4 sm:px-6 font-medium">${getCanonicalCollegeIdentity(item.Allotted_Institute)}${badge}</td>
+                        <td class="py-3 px-4 sm:px-6">${normalizeCourseName(item.Course)}</td>
                         <td class="py-3 px-4 sm:px-6 space-y-1">
                             <div><span class="inline-block px-2 py-0.5 text-xs bg-slate-100 rounded">${item.Allotted_Quota || ''}</span></div>
                             <div><span class="inline-block px-2 py-0.5 text-xs bg-indigo-50 text-indigo-700 rounded">${item.Allotted_Category || ''}</span></div>
