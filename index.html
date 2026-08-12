@@ -804,9 +804,24 @@
             filterAndRender();
         };
 
-        searchInput.addEventListener('input', () => {
-            renderSearchDropdown(searchInput.value);
-            filterAndRender();
+       // Put this near the top of your script
+function debounce(func, delay = 280) {
+    let timer;
+    return function(...args) {
+        clearTimeout(timer);
+        timer = setTimeout(() => func.apply(this, args), delay);
+    };
+}
+
+// And this for the search input
+const debouncedFilter = debounce(() => {
+    filterAndRender();
+}, 280);
+
+searchInput.addEventListener('input', () => {
+    renderSearchDropdown(searchInput.value); // dropdown stays fast
+    debouncedFilter();                       // heavy filtering is delayed
+});
         });
         searchInput.addEventListener('focus', () => renderSearchDropdown(searchInput.value));
         searchInput.addEventListener('keydown', (e) => {
@@ -856,53 +871,58 @@
         });
 
         // Filter & Render with Acronym Support
-        function filterAndRender() {
-            const userRank = parseInt(rankInput.value);
-            const searchVal = searchInput.value.toLowerCase().trim();
-            const selectedExam = examFilter.value;
-            const selectedYear = yearFilter.value;
-            const selectedRound = roundFilter.value;
-            const selectedQuota = quotaFilter.value;
-            const selectedCategory = categoryFilter.value;
-            const selectedCourse = selectedCourseValue.toLowerCase().trim();
+       function filterAndRender() {
+    const userRank = parseInt(rankInput.value);
+    const searchVal = searchInput.value.toLowerCase().trim();
+    const selectedExam = examFilter.value;
+    const selectedYear = yearFilter.value;
+    const selectedRound = roundFilter.value;
+    const selectedQuota = quotaFilter.value;
+    const selectedCategory = categoryFilter.value;
+    const selectedCourse = selectedCourseValue.toLowerCase().trim();
 
-            const filtered = allData.filter(item => {
-                const matchesRank = isNaN(userRank) || (item.Closing_Rank && userRank <= item.Closing_Rank);
+    const filtered = allData.filter(item => {
+        // 1. Rank filter
+        const matchesRank = isNaN(userRank) || (item.Closing_Rank && userRank <= item.Closing_Rank);
 
-                const matchesSearch = !searchVal || (() => {
-                    if (!item.Allotted_Institute && !item.Course) return false;
-                    const institute = (item.Allotted_Institute || "").toLowerCase();
-                    const course = (item.Course || "").toLowerCase();
-                    const canonical = getCanonicalCollegeIdentity(item.Allotted_Institute).toLowerCase();
+        // 2. Optimized Search (College + Course + Acronyms)
+        const matchesSearch = !searchVal || (() => {
+            const institute = (item.Allotted_Institute || "").toLowerCase();
+            const course = (item.Course || "").toLowerCase();
 
-                    if (institute.includes(searchVal) || course.includes(searchVal) || canonical.includes(searchVal)) {
-                        return true;
-                    }
+            // Fast path - normal text match
+            if (institute.includes(searchVal) || course.includes(searchVal)) {
+                return true;
+            }
 
-                    // Acronym match
-                    for (const acr of FAMOUS_ACRONYMS) {
+            // Acronym match (only for short queries to keep it fast)
+            if (searchVal.length <= 8) {
+                for (const acr of FAMOUS_ACRONYMS) {
+                    const abbr = acr.abbreviation.toLowerCase();
+                    if (abbr.includes(searchVal) || searchVal.includes(abbr)) {
                         if (acr.keywords.some(kw => institute.includes(kw.toLowerCase()))) {
-                            if (acr.abbreviation.toLowerCase().includes(searchVal) || searchVal.includes(acr.abbreviation.toLowerCase())) {
-                                return true;
-                            }
+                            return true;
                         }
                     }
-                    return false;
-                })();
+                }
+            }
+            return false;
+        })();
 
-                const matchesExam = !selectedExam || String(item.Exam) === selectedExam;
-                const matchesYear = !selectedYear || String(item.Year) === selectedYear;
-                const matchesRound = !selectedRound || String(item.Round) === selectedRound;
-                const matchesQuota = !selectedQuota || String(item.Allotted_Quota) === selectedQuota;
-                const matchesCategory = !selectedCategory || String(item.Allotted_Category) === selectedCategory;
-                const matchesCourse = !selectedCourse || (item.Course && item.Course.toLowerCase().includes(selectedCourse));
+        // 3. Other filters
+        const matchesExam = !selectedExam || String(item.Exam) === selectedExam;
+        const matchesYear = !selectedYear || String(item.Year) === selectedYear;
+        const matchesRound = !selectedRound || String(item.Round) === selectedRound;
+        const matchesQuota = !selectedQuota || String(item.Allotted_Quota) === selectedQuota;
+        const matchesCategory = !selectedCategory || String(item.Allotted_Category) === selectedCategory;
+        const matchesCourse = !selectedCourse || (item.Course && item.Course.toLowerCase().includes(selectedCourse));
 
-                return matchesRank && matchesSearch && matchesExam && matchesYear && matchesRound && matchesQuota && matchesCategory && matchesCourse;
-            });
+        return matchesRank && matchesSearch && matchesExam && matchesYear && 
+               matchesRound && matchesQuota && matchesCategory && matchesCourse;
+    });
 
-            renderTable(filtered);
-        }
-
+    renderTable(filtered);
+}
         function renderTable(data) {
             const userRank = parseInt(rankInput.value);
             const totalMatches = data.length;
