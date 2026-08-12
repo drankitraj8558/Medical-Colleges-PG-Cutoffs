@@ -256,8 +256,9 @@
     </div>
 
     <!-- ==================== JAVASCRIPT ==================== -->
+<!-- ==================== JAVASCRIPT ==================== -->
     <script>
-        const SUPABASE_URL = 'https://udwlruggphsrauusyauc.supabase.co';
+        const SUPABASE_URL = '[https://udwlruggphsrauusyauc.supabase.co](https://udwlruggphsrauusyauc.supabase.co)';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVkd2xydWdncGhzcmF1dXN5YXVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYyOTUzOTgsImV4cCI6MjEwMTg3MTM5OH0.VkKf_6G5b-3Ug5IPxuF8pq3N8bLBA-j9Jo-cy2JzCAE';
         const RAZORPAY_KEY_ID = 'rzp_live_TOCTpxIisiiz14';
 
@@ -519,74 +520,33 @@
             document.getElementById('contactModal').classList.remove('flex');
         };
 
-        // ========== COLLEGE & COURSE NORMALIZATION ==========
-        // 🏥 MASTER CANONICAL DICTIONARY FOR COLLEGES
+        // ========== CANONICAL COLLEGES ==========
         const CANONICAL_COLLEGES = [
-            {
-                pattern: /RML|RAM MANOHAR LOHIA|ABVIMS/i,
-                cityPattern: /DELHI|NEW DELHI/i,
-                cleanName: 'ABVIMS & Dr. RML Hospital, New Delhi [ABVIMS / RML] (110001)'
-            },
-            {
-                pattern: /MAULANA AZAD|MAMC/i,
-                cleanName: 'Maulana Azad Medical College, New Delhi [MAMC] (110002)'
-            },
-            {
-                pattern: /MAHARAJA AGRASEN/i,
-                cleanName: 'Maharaja Agrasen Medical College, Agroha [MAMC Agroha] (125047)'
-            },
-            {
-                pattern: /LADY HARDINGE|LHMC/i,
-                cleanName: 'Lady Hardinge Medical College, New Delhi [LHMC] (110001)'
-            },
-            {
-                pattern: /VARDHMAN|SAFDARJUNG|VMMCH/i,
-                cleanName: 'VMMCH & Safdarjung Hospital, New Delhi [VMMCH / Safdarjung] (110029)'
-            },
-            {
-                pattern: /UNIVERSITY COLLEGE OF MEDICAL|UCMS/i,
-                cleanName: 'UCMS & GTB Hospital, New Delhi [UCMS] (110095)'
-            },
-            {
-                pattern: /PGIMER/i,
-                cityPattern: /CHANDIGARH/i,
-                cleanName: 'PGIMER, Chandigarh [PGIMER] (160012)'
-            },
-            {
-                pattern: /JIPMER/i,
-                cleanName: 'JIPMER, Puducherry [JIPMER] (605006)'
-            },
-            {
-                pattern: /KING GEORGE|KGMU/i,
-                cleanName: 'KGMU, Lucknow [KGMU] (226003)'
-            },
-            {
-                pattern: /AIIMS/i,
-                cityPattern: /NEW DELHI|DELHI/i,
-                cleanName: 'AIIMS, New Delhi [AIIMS New Delhi] (110029)'
-            }
+            { pattern: /RML|RAM MANOHAR LOHIA|ABVIMS/i, cityPattern: /DELHI|NEW DELHI/i, cleanName: 'ABVIMS & Dr. RML Hospital, New Delhi [ABVIMS / RML] (110001)' },
+            { pattern: /MAULANA AZAD|MAMC/i, cleanName: 'Maulana Azad Medical College, New Delhi [MAMC] (110002)' },
+            { pattern: /MAHARAJA AGRASEN/i, cleanName: 'Maharaja Agrasen Medical College, Agroha [MAMC Agroha] (125047)' },
+            { pattern: /LADY HARDINGE|LHMC/i, cleanName: 'Lady Hardinge Medical College, New Delhi [LHMC] (110001)' },
+            { pattern: /VARDHMAN|SAFDARJUNG|VMMCH/i, cleanName: 'VMMCH & Safdarjung Hospital, New Delhi [VMMCH / Safdarjung] (110029)' },
+            { pattern: /UNIVERSITY COLLEGE OF MEDICAL|UCMS/i, cleanName: 'UCMS & GTB Hospital, New Delhi [UCMS] (110095)' },
+            { pattern: /PGIMER/i, cityPattern: /CHANDIGARH/i, cleanName: 'PGIMER, Chandigarh [PGIMER] (160012)' },
+            { pattern: /JIPMER/i, cleanName: 'JIPMER, Puducherry [JIPMER] (605006)' },
+            { pattern: /KING GEORGE|KGMU/i, cleanName: 'KGMU, Lucknow [KGMU] (226003)' },
+            { pattern: /AIIMS/i, cityPattern: /NEW DELHI|DELHI/i, cleanName: 'AIIMS, New Delhi [AIIMS New Delhi] (110029)' }
         ];
 
-        // 🎯 CLEAN COLLEGE IDENTIFIER (Name, City [Acronym] (PIN))
         function getCanonicalCollegeIdentity(rawName) {
             if (!rawName) return "N/A";
-
             let str = rawName.toUpperCase().trim();
 
-            // Explicit dictionary check
             for (const col of CANONICAL_COLLEGES) {
                 if (col.pattern.test(str)) {
-                    if (!col.cityPattern || col.cityPattern.test(str)) {
-                        return col.cleanName;
-                    }
+                    if (!col.cityPattern || col.cityPattern.test(str)) return col.cleanName;
                 }
             }
 
-            // Extract PIN code
             const pinMatch = str.match(/\b\d{6}\b/);
             const pinCode = pinMatch ? pinMatch[0] : null;
 
-            // Clean text and remove raw existing brackets
             let clean = str
                 .replace(/\b\d{6}\b/g, '')
                 .replace(/\b(NEAR|OPP|OPPOSITE|STREET|ROAD|MARG|CAMPUS|NCT|DIST|DISTRICT|CANNAUGHT PLACE|BABA KHARAK SINGH)\b.*$/i, '')
@@ -609,7 +569,6 @@
                 .replace(/\bHOSP?\b/gi, 'Hospital')
                 .replace(/\bINST\b/gi, 'Institute');
 
-            // Generate acronym if words exist
             const words = coreName.split(' ').filter(w => w.length > 2 && !['AND', 'FOR', 'THE', 'OF', 'DR.', 'GOVERNMENT', 'MEDICAL', 'COLLEGE', 'HOSPITAL'].includes(w.toUpperCase()));
             const acronym = words.length >= 2 ? words.map(w => w[0].toUpperCase()).join('') : '';
 
@@ -619,214 +578,122 @@
             return `${coreName}${acronymTag}${pinTag}`;
         }
 
-        // 🩺 HIGH-PRECISION COURSE NORMALIZER (Complete Fix)
-function normalizeCourseName(rawCourse) {
-    if (!rawCourse) return "N/A";
+        // ========== COURSE NORMALIZATION ==========
+        function normalizeCourseName(rawCourse) {
+            if (!rawCourse) return "N/A";
+            let str = rawCourse.trim();
+            let upper = str.toUpperCase().replace(/\s+/g, ' ');
 
-    let str = rawCourse.trim();
-    let upper = str.toUpperCase().replace(/\s+/g, ' ');
+            upper = upper.replace(/ANAESTHESIOLO\s*GY/gi, 'ANAESTHESIOLOGY')
+                         .replace(/ANAESTHESIOLOG\s*Y/gi, 'ANAESTHESIOLOGY')
+                         .replace(/OPHTHALMOLOG\s*Y/gi, 'OPHTHALMOLOGY')
+                         .replace(/CARDIOTHORASIC/gi, 'CARDIOTHORACIC');
 
-    // 1. Fix OCR / spacing typos in raw PDFs
-    upper = upper.replace(/ANAESTHESIOLO\s*GY/gi, 'ANAESTHESIOLOGY')
-                 .replace(/ANAESTHESIOLOG\s*Y/gi, 'ANAESTHESIOLOGY')
-                 .replace(/OPHTHALMOLOG\s*Y/gi, 'OPHTHALMOLOGY')
-                 .replace(/CARDIOTHORASIC/gi, 'CARDIOTHORACIC');
+            const isNBEMSDiploma = /NBEMS\s*-\s*DIPLOMA/i.test(upper);
+            const isDNB = /\b(DNB|NBEMS|NBE|DIPLOMATE)\b/i.test(upper) && !isNBEMSDiploma;
+            const isStateDiploma = /\b(DIPLOMA|DIP\.|DIP\b)/i.test(upper) && !isDNB && !isNBEMSDiploma;
 
-    // 2. Exact Qualification Type Detection
-    const isNBEMSDiploma = /NBEMS\s*-\s*DIPLOMA/i.test(upper);
-    const isDNB = /\b(DNB|NBEMS|NBE|DIPLOMATE)\b/i.test(upper) && !isNBEMSDiploma;
-    const isStateDiploma = /\b(DIPLOMA|DIP\.|DIP\b)/i.test(upper) && !isDNB && !isNBEMSDiploma;
+            const formatCourse = (standardName, mdMsPrefix = 'MD') => {
+                if (isNBEMSDiploma) return `NBEMS Diploma in ${standardName}`;
+                if (isDNB) return `DNB (${standardName})`;
+                if (isStateDiploma) return `Diploma in ${standardName}`;
+                return `${mdMsPrefix} (${standardName})`;
+            };
 
-    // Helper formatter
-    const formatCourse = (standardName, mdMsPrefix = 'MD') => {
-        if (isNBEMSDiploma) return `NBEMS Diploma in ${standardName}`;
-        if (isDNB) return `DNB (${standardName})`;
-        if (isStateDiploma) return `Diploma in ${standardName}`;
-        return `${mdMsPrefix} (${standardName})`;
-    };
+            if (/INTERVENTIONAL RADIOLOGY/i.test(upper)) return formatCourse('Interventional Radiology', 'MD/DM');
+            if (/CARDIOTHORACIC.*VASCULAR.*(6 YEARS|DIRECT)/i.test(upper)) return isDNB ? 'DNB (Cardiothoracic & Vascular Surgery - Direct 6 Years)' : 'M.Ch (Cardiothoracic & Vascular Surgery 6 Years)';
+            if (/BURNS & PLASTIC SURGERY.*6 YEARS/i.test(upper)) return 'M.Ch (Burns & Plastic Surgery 6 Years)';
+            if (/PLASTIC.*RECONSTRUCTIVE.*(6 YEARS|DIRECT)/i.test(upper)) return isDNB ? 'DNB (Plastic & Reconstructive Surgery - Direct 6 Years)' : 'M.Ch (Plastic & Reconstructive Surgery 6 Years)';
+            if (/NEURO\s*SURGERY.*(6 YEARS|DIRECT)|M\.CH\.?\s*\(NEURO SURGERY\)/i.test(upper)) return isDNB ? 'DNB (Neurosurgery - Direct 6 Years)' : 'M.Ch (Neurosurgery 6 Years)';
+            if (/PAEDIATRIC SURGERY.*(6 YEARS|DIRECT)/i.test(upper)) return isDNB ? 'DNB (Paediatric Surgery - Direct 6 Years)' : 'M.Ch (Paediatric Surgery 6 Years)';
+            if (/SURGICAL GASTROENTEROLOGY.*6 YEARS/i.test(upper)) return 'M.Ch (Surgical Gastroenterology 6 Years)';
+            if (/UROLOGY.*6 YEARS/i.test(upper)) return 'M.Ch (Urology 6 Years)';
+            if (/NEUROLOGY.*6 YEARS/i.test(upper)) return 'DM (Neurology 6 Years)';
+            if (/INFECTIOUS DISEASES.*6 YEARS/i.test(upper)) return 'DM (Infectious Diseases 6 Years)';
+            if (/TRAUMA SURGERY.*CRITICAL CARE.*6 YEARS/i.test(upper)) return 'M.Ch (Trauma Surgery & Critical Care 6 Years)';
 
-    // -------------------------------------------------------------
-    // SECTION 1: DNB / M.CH / DM DIRECT 6-YEAR & SUPER SPECIALTY
-    // -------------------------------------------------------------
-    if (/INTERVENTIONAL RADIOLOGY/i.test(upper)) {
-        return formatCourse('Interventional Radiology', 'MD/DM');
-    }
-    if (/CARDIOTHORACIC.*VASCULAR.*(6 YEARS|DIRECT)/i.test(upper)) {
-        return isDNB ? 'DNB (Cardiothoracic & Vascular Surgery - Direct 6 Years)' : 'M.Ch (Cardiothoracic & Vascular Surgery 6 Years)';
-    }
-    if (/BURNS & PLASTIC SURGERY.*6 YEARS/i.test(upper)) {
-        return 'M.Ch (Burns & Plastic Surgery 6 Years)';
-    }
-    if (/PLASTIC.*RECONSTRUCTIVE.*(6 YEARS|DIRECT)/i.test(upper)) {
-        return isDNB ? 'DNB (Plastic & Reconstructive Surgery - Direct 6 Years)' : 'M.Ch (Plastic & Reconstructive Surgery 6 Years)';
-    }
-    if (/NEURO\s*SURGERY.*(6 YEARS|DIRECT)|M\.CH\.?\s*\(NEURO SURGERY\)/i.test(upper)) {
-        return isDNB ? 'DNB (Neurosurgery - Direct 6 Years)' : 'M.Ch (Neurosurgery 6 Years)';
-    }
-    if (/PAEDIATRIC SURGERY.*(6 YEARS|DIRECT)/i.test(upper)) {
-        return isDNB ? 'DNB (Paediatric Surgery - Direct 6 Years)' : 'M.Ch (Paediatric Surgery 6 Years)';
-    }
-    if (/SURGICAL GASTROENTEROLOGY.*6 YEARS/i.test(upper)) {
-        return 'M.Ch (Surgical Gastroenterology 6 Years)';
-    }
-    if (/UROLOGY.*6 YEARS/i.test(upper)) {
-        return 'M.Ch (Urology 6 Years)';
-    }
-    if (/NEUROLOGY.*6 YEARS/i.test(upper)) {
-        return 'DM (Neurology 6 Years)';
-    }
-    if (/INFECTIOUS DISEASES.*6 YEARS/i.test(upper)) {
-        return 'DM (Infectious Diseases 6 Years)';
-    }
-    if (/TRAUMA SURGERY.*CRITICAL CARE.*6 YEARS/i.test(upper)) {
-        return 'M.Ch (Trauma Surgery & Critical Care 6 Years)';
-    }
+            if (/AEROSPACE MEDICINE/i.test(upper)) return 'MD (Aerospace Medicine)';
+            if (/TROPICAL MEDICINE/i.test(upper)) return 'MD (Tropical Medicine)';
+            if (/SPORTS MEDICINE/i.test(upper)) return formatCourse('Sports Medicine', 'MD');
+            if (/EPIDEMIOLOGY|M\.P\.H\./i.test(upper)) return 'MPH (Epidemiology)';
+            if (/GERIATRIC/i.test(upper)) return formatCourse('Geriatric Medicine', 'MD');
+            if (/PALLIATIVE/i.test(upper)) return formatCourse('Palliative Medicine', 'MD');
+            if (/RADIATION MEDICINE/i.test(upper) && !/ONCOLOGY|THERAPY/i.test(upper)) return 'Diploma in Radiation Medicine (DRM)';
+            if (/LAB.*MEDICINE|MDLABORATORY/i.test(upper)) return 'MD (Laboratory Medicine)';
+            if (/BIOPHYSICS/i.test(upper)) return 'MD/M.Sc (Biophysics)';
 
-    // -------------------------------------------------------------
-    // SECTION 2: STANDALONE & NICHE MD/MS/MPH COURSES
-    // -------------------------------------------------------------
-    if (/AEROSPACE MEDICINE/i.test(upper)) return 'MD (Aerospace Medicine)';
-    if (/TROPICAL MEDICINE/i.test(upper)) return 'MD (Tropical Medicine)';
-    if (/SPORTS MEDICINE/i.test(upper)) return formatCourse('Sports Medicine', 'MD');
-    if (/EPIDEMIOLOGY|M\.P\.H\./i.test(upper)) return 'MPH (Epidemiology)';
-    if (/GERIATRIC/i.test(upper)) return formatCourse('Geriatric Medicine', 'MD');
-    if (/PALLIATIVE/i.test(upper)) return formatCourse('Palliative Medicine', 'MD');
-    if (/RADIATION MEDICINE/i.test(upper) && !/ONCOLOGY|THERAPY/i.test(upper)) return 'Diploma in Radiation Medicine (DRM)';
-    if (/LAB.*MEDICINE|MDLABORATORY/i.test(upper)) return 'MD (Laboratory Medicine)';
-    if (/BIOPHYSICS/i.test(upper)) return 'MD/M.Sc (Biophysics)';
+            if (/\b(CFM|CFMFM|COMMUNITY & FAMILY MEDICINE)\b/i.test(upper)) return 'Community & Family Medicine (CFM)';
+            if (/FAMILY MEDICINE/i.test(upper)) return formatCourse('Family Medicine', 'MD');
+            if (/COMMUNITY MEDICINE|PREVENTIVE|COMMUNITY HEALTH/i.test(upper)) return formatCourse('Community Medicine / PSM', 'MD');
 
-    // -------------------------------------------------------------
-    // SECTION 3: FAMILY & COMMUNITY MEDICINE (Separated from Gen Med)
-    // -------------------------------------------------------------
-    if (/\b(CFM|CFMFM|COMMUNITY & FAMILY MEDICINE)\b/i.test(upper)) {
-        return 'Community & Family Medicine (CFM)';
-    }
-    if (/FAMILY MEDICINE/i.test(upper)) {
-        return formatCourse('Family Medicine', 'MD');
-    }
-    if (/COMMUNITY MEDICINE|PREVENTIVE|COMMUNITY HEALTH/i.test(upper)) {
-        return formatCourse('Community Medicine / PSM', 'MD');
-    }
+            if (/RADIO-?DIAGNOSIS|\bRADIOLOGY\b/i.test(upper)) return formatCourse('Radiodiagnosis', 'MD');
+            if (/RADIATION ONCOLOGY|RADIOTHERAPY/i.test(upper)) return formatCourse('Radiation Oncology / Radiotherapy', 'MD');
+            if (/GENERAL MEDICINE|INTERNAL MEDICINE|\bMEDICINE\b/i.test(upper)) return formatCourse('General Medicine', 'MD');
+            if (/GENERAL SURGERY|\bSURGERY\b/i.test(upper)) return formatCourse('General Surgery', 'MS');
+            if (/OBSTETRICS.*GYNAECOLOGY|OBGYN|OBS.*GYN|GYNAE\.\s*\&\s*OBST/i.test(upper)) return formatCourse('Obstetrics & Gynaecology', 'MD/MS');
+            if (/ANAESTHESIOLOGY|ANESTHESIOLOGY|ANAESTHESIA/i.test(upper)) return formatCourse('Anaesthesiology', 'MD');
+            if (/DERMATOLOGY|DVL|VENEREOLOGY|LEPROSY/i.test(upper)) return formatCourse('Dermatology, Venereology & Leprosy', 'MD');
+            if (/PAEDIATRICS|PEDIATRICS/i.test(upper)) return formatCourse('Paediatrics', 'MD');
+            if (/ORTHOPAEDICS|ORTHOPEDICS/i.test(upper)) return formatCourse('Orthopaedics', 'MS');
+            if (/OPHTHALMOLOGY/i.test(upper)) return formatCourse('Ophthalmology', 'MS');
+            if (/ENT|OTORHINOLARYNGOLOGY|OTO\s*-\s*RHINO/i.test(upper)) return formatCourse('ENT / Otorhinolaryngology', 'MS');
+            if (/PATHOLOGY/i.test(upper)) return formatCourse('Pathology', 'MD');
+            if (/MICROBIOLOGY|BACTERIOLOGY/i.test(upper)) return formatCourse('Microbiology', 'MD');
+            if (/PHARMACOLOGY/i.test(upper)) return formatCourse('Pharmacology', 'MD');
+            if (/PHYSIOLOGY/i.test(upper)) return formatCourse('Physiology', 'MD');
+            if (/ANATOMY/i.test(upper)) return formatCourse('Anatomy', 'MD');
+            if (/BIOCHEMISTRY/i.test(upper)) return formatCourse('Biochemistry', 'MD');
+            if (/PSYCHIATRY|PSYCHOLOGICAL/i.test(upper)) return formatCourse('Psychiatry', 'MD');
+            if (/EMERGENCY MEDICINE/i.test(upper)) return formatCourse('Emergency Medicine', 'MD');
+            if (/PHYSICAL MED|PMR/i.test(upper)) return formatCourse('Physical Medicine & Rehabilitation', 'MD');
+            if (/RESPIRATORY|PULMONARY|CHEST|TUBERCULOSIS|T\.B\./i.test(upper)) return formatCourse('Respiratory / Pulmonary Medicine', 'MD');
+            if (/TRANSFUSION|BLOOD/i.test(upper)) return formatCourse('Transfusion Medicine', 'MD');
+            if (/FORENSIC|FMT/i.test(upper)) return formatCourse('Forensic Medicine', 'MD');
+            if (/NUCLEAR MEDICINE/i.test(upper)) return formatCourse('Nuclear Medicine', 'MD');
 
-    // -------------------------------------------------------------
-    // SECTION 4: CORE MD / MS BRANCHES
-    // -------------------------------------------------------------
-    if (/RADIO-?DIAGNOSIS|\bRADIOLOGY\b/i.test(upper)) {
-        return formatCourse('Radiodiagnosis', 'MD');
-    }
-    if (/RADIATION ONCOLOGY|RADIOTHERAPY/i.test(upper)) {
-        return formatCourse('Radiation Oncology / Radiotherapy', 'MD');
-    }
-    if (/GENERAL MEDICINE|INTERNAL MEDICINE|\bMEDICINE\b/i.test(upper)) {
-        return formatCourse('General Medicine', 'MD');
-    }
-    if (/GENERAL SURGERY|\bSURGERY\b/i.test(upper)) {
-        return formatCourse('General Surgery', 'MS');
-    }
-    if (/OBSTETRICS.*GYNAECOLOGY|OBGYN|OBS.*GYN|GYNAE\.\s*\&\s*OBST/i.test(upper)) {
-        return formatCourse('Obstetrics & Gynaecology', 'MD/MS');
-    }
-    if (/ANAESTHESIOLOGY|ANESTHESIOLOGY|ANAESTHESIA/i.test(upper)) {
-        return formatCourse('Anaesthesiology', 'MD');
-    }
-    if (/DERMATOLOGY|DVL|VENEREOLOGY|LEPROSY/i.test(upper)) {
-        return formatCourse('Dermatology, Venereology & Leprosy', 'MD');
-    }
-    if (/PAEDIATRICS|PEDIATRICS/i.test(upper)) {
-        return formatCourse('Paediatrics', 'MD');
-    }
-    if (/ORTHOPAEDICS|ORTHOPEDICS/i.test(upper)) {
-        return formatCourse('Orthopaedics', 'MS');
-    }
-    if (/OPHTHALMOLOGY/i.test(upper)) {
-        return formatCourse('Ophthalmology', 'MS');
-    }
-    if (/ENT|OTORHINOLARYNGOLOGY|OTO\s*-\s*RHINO/i.test(upper)) {
-        return formatCourse('ENT / Otorhinolaryngology', 'MS');
-    }
-    if (/PATHOLOGY/i.test(upper)) {
-        return formatCourse('Pathology', 'MD');
-    }
-    if (/MICROBIOLOGY|BACTERIOLOGY/i.test(upper)) {
-        return formatCourse('Microbiology', 'MD');
-    }
-    if (/PHARMACOLOGY/i.test(upper)) {
-        return formatCourse('Pharmacology', 'MD');
-    }
-    if (/PHYSIOLOGY/i.test(upper)) {
-        return formatCourse('Physiology', 'MD');
-    }
-    if (/ANATOMY/i.test(upper)) {
-        return formatCourse('Anatomy', 'MD');
-    }
-    if (/BIOCHEMISTRY/i.test(upper)) {
-        return formatCourse('Biochemistry', 'MD');
-    }
-    if (/PSYCHIATRY|PSYCHOLOGICAL/i.test(upper)) {
-        return formatCourse('Psychiatry', 'MD');
-    }
-    if (/EMERGENCY MEDICINE/i.test(upper)) {
-        return formatCourse('Emergency Medicine', 'MD');
-    }
-    if (/PHYSICAL MED|PMR/i.test(upper)) {
-        return formatCourse('Physical Medicine & Rehabilitation', 'MD');
-    }
-    if (/RESPIRATORY|PULMONARY|CHEST|TUBERCULOSIS|T\.B\./i.test(upper)) {
-        return formatCourse('Respiratory / Pulmonary Medicine', 'MD');
-    }
-    if (/TRANSFUSION|BLOOD/i.test(upper)) {
-        return formatCourse('Transfusion Medicine', 'MD');
-    }
-    if (/FORENSIC|FMT/i.test(upper)) {
-        return formatCourse('Forensic Medicine', 'MD');
-    }
-    if (/NUCLEAR MEDICINE/i.test(upper)) {
-        return formatCourse('Nuclear Medicine', 'MD');
-    }
+            if (/CONSERVATIVE DENTISTRY/i.test(upper)) return 'MDS (Conservative Dentistry & Endodontics)';
+            if (/PERIODONT/i.test(upper)) return 'MDS (Periodontics & Periodontology)';
+            if (/PROSTHODONT/i.test(upper)) return 'MDS (Prosthodontics)';
+            if (/ORTHODONT/i.test(upper)) return 'MDS (Orthodontics)';
+            if (/PEDODONT/i.test(upper)) return 'MDS (Pedodontics)';
+            if (/ORAL & MAXILLOFACIAL/i.test(upper)) return 'MDS (Oral & Maxillofacial Surgery)';
+            if (/PUBLIC HEALTH DENTISTRY/i.test(upper)) return 'MDS (Public Health Dentistry)';
 
-    // -------------------------------------------------------------
-    // SECTION 5: DENTAL (MDS) COURSES
-    // -------------------------------------------------------------
-    if (/CONSERVATIVE DENTISTRY/i.test(upper)) return 'MDS (Conservative Dentistry & Endodontics)';
-    if (/PERIODONT/i.test(upper)) return 'MDS (Periodontics & Periodontology)';
-    if (/PROSTHODONT/i.test(upper)) return 'MDS (Prosthodontics)';
-    if (/ORTHODONT/i.test(upper)) return 'MDS (Orthodontics)';
-    if (/PEDODONT/i.test(upper)) return 'MDS (Pedodontics)';
-    if (/ORAL & MAXILLOFACIAL/i.test(upper)) return 'MDS (Oral & Maxillofacial Surgery)';
-    if (/PUBLIC HEALTH DENTISTRY/i.test(upper)) return 'MDS (Public Health Dentistry)';
-// 🎟️ MASTER QUOTA NORMALIZER (Maps abbreviations & duplicates to clean display names)
-const QUOTA_DICTIONARY = [
-    { pattern: /^AI$|^ALL INDIA$/i, standard: 'All India Quota (AIQ)' },
-    { pattern: /^AM$|ALIGARH MUSLIM/i, standard: 'Aligarh Muslim University (AMU) Quota' },
-    { pattern: /^BH$|BANARAS HINDU/i, standard: 'Banaras Hindu University (BHU) Quota' },
-    { pattern: /^DU$|DELHI UNIVERSITY/i, standard: 'Delhi University (DU) Quota' },
-    { pattern: /^IP$|IP UNIVERSITY/i, standard: 'IP University (IPU) Quota' },
-    { pattern: /^AF$|ARMED FORCES/i, standard: 'Armed Forces Medical Services (AFMS)' },
-    { pattern: /^JM$|JAIN MINORITY/i, standard: 'Jain Minority Quota' },
-    { pattern: /^MM$|MUSLIM MINORITY/i, standard: 'Muslim Minority Quota' },
-    { pattern: /^NR$|NON-?\s*RESIDENT/i, standard: 'Non-Resident Indian (NRI) Quota' },
-    { pattern: /^PS$|MANAGEMENT|PAID SEAT/i, standard: 'Management / Paid Seats Quota' },
-    { pattern: /SELF-?\s*FINANCE/i, standard: 'Self-Financed Merit Quota' },
-    { pattern: /^DNB/i, standard: 'DNB Quota' },
-    { pattern: /INI-?CET/i, standard: 'INI-CET Quota' }
-];
-
-function normalizeQuotaName(rawQuota) {
-    if (!rawQuota) return "General / Open Quota";
-
-    let str = rawQuota.trim();
-
-    for (const item of QUOTA_DICTIONARY) {
-        if (item.pattern.test(str)) {
-            return item.standard;
+            return str.replace(/\s+/g, ' ').replace(/\s*,\s*/g, ', ').replace(/\s*-\s*/g, ' - ');
         }
-    }
 
-    // Fallback cleaner
-    return str.replace(/\s+/g, ' ').replace(/\s*,\s*/g, ', ').replace(/\s*-\s*/g, ' - ');
-}
+        // ========== QUOTA NORMALIZATION ==========
+        const QUOTA_DICTIONARY = [
+            { pattern: /INI-?CET.*INSTITUTIONAL|AIIMS.*INTERNAL|INSTITUTIONAL.*PREFERENCE/i, standard: 'INI-CET (Institutional / Internal Quota)' },
+            { pattern: /JIPMER.*INTERNAL|JIPMER.*QUOTA/i, standard: 'INI-CET (JIPMER Internal Quota)' },
+            { pattern: /NIMHANS.*DOMICILE|KARNATAKA.*DOMICILE/i, standard: 'INI-CET (NIMHANS Domicile Quota)' },
+            { pattern: /RURAL AREA SERVICE|RAS/i, standard: 'INI-CET (Rural Area Service - RAS Quota)' },
+            { pattern: /INI-?CET.*OPEN|INI-?CET.*GENERAL/i, standard: 'INI-CET (Open Seat Quota)' },
+            { pattern: /^INI-?CET Quota$/i, standard: 'INI-CET Open Quota' },
+            { pattern: /^AI$|^ALL INDIA$/i, standard: 'All India Quota (AIQ)' },
+            { pattern: /^AM$|ALIGARH MUSLIM/i, standard: 'Aligarh Muslim University (AMU) Quota' },
+            { pattern: /^BH$|BANARAS HINDU/i, standard: 'Banaras Hindu University (BHU) Quota' },
+            { pattern: /^DU$|DELHI UNIVERSITY/i, standard: 'Delhi University (DU) Quota' },
+            { pattern: /^IP$|IP UNIVERSITY/i, standard: 'IP University (IPU) Quota' },
+            { pattern: /^AF$|ARMED FORCES/i, standard: 'Armed Forces Medical Services (AFMS)' },
+            { pattern: /^JM$|JAIN MINORITY/i, standard: 'Jain Minority Quota' },
+            { pattern: /^MM$|MUSLIM MINORITY/i, standard: 'Muslim Minority Quota' },
+            { pattern: /^NR$|NON-?\s*RESIDENT/i, standard: 'Non-Resident Indian (NRI) Quota' },
+            { pattern: /^PS$|MANAGEMENT|PAID SEAT/i, standard: 'Management / Paid Seats Quota' },
+            { pattern: /SELF-?\s*FINANCE/i, standard: 'Self-Financed Merit Quota' },
+            { pattern: /^DNB/i, standard: 'DNB Quota' }
+        ];
 
-        // 🔍 DEDUPLICATED SEARCH SUGGESTIONS GENERATOR
+        function normalizeQuotaName(rawQuota) {
+            if (!rawQuota) return "Open / General Quota";
+            let str = rawQuota.trim();
+            for (const item of QUOTA_DICTIONARY) {
+                if (item.pattern.test(str)) return item.standard;
+            }
+            return str;
+        }
+
+        // ========== SEARCH SUGGESTIONS ==========
         function renderSearchSuggestions(query) {
             const searchDropdown = document.getElementById('searchDropdown');
             if (!searchDropdown) return;
@@ -837,8 +704,6 @@ function normalizeQuotaName(rawQuota) {
             }
 
             const q = query.toLowerCase().trim();
-
-            // Use Set to guarantee NO DUPLICATES in search popup
             const matchingColleges = new Set();
             const matchingCourses = new Set();
 
@@ -846,12 +711,8 @@ function normalizeQuotaName(rawQuota) {
                 const inst = item.Display_Institute || item.Allotted_Institute || "";
                 const course = item.Display_Course || item.Course || "";
 
-                if (inst && inst.toLowerCase().includes(q)) {
-                    matchingColleges.add(inst);
-                }
-                if (course && course.toLowerCase().includes(q)) {
-                    matchingCourses.add(course);
-                }
+                if (inst && inst.toLowerCase().includes(q)) matchingColleges.add(inst);
+                if (course && course.toLowerCase().includes(q)) matchingCourses.add(course);
             });
 
             const uniqueColleges = Array.from(matchingColleges).sort().slice(0, 6);
@@ -863,7 +724,6 @@ function normalizeQuotaName(rawQuota) {
             }
 
             let html = '';
-
             uniqueColleges.forEach(col => {
                 const safe = col.replace(/'/g, "\\'").replace(/"/g, '&quot;');
                 html += `
@@ -978,7 +838,7 @@ function normalizeQuotaName(rawQuota) {
             subset.forEach(item => {
                 if (item.Year) years.add(String(item.Year));
                 if (item.Round) rounds.add(String(item.Round));
-                if (item.Allotted_Quota) quotas.add(String(item.Allotted_Quota));
+                if (item.Display_Quota) quotas.add(String(item.Display_Quota));
                 if (item.Allotted_Category) categories.add(String(item.Allotted_Category));
                 if (item.Display_Course) courses.add(String(item.Display_Course));
             });
@@ -1106,7 +966,7 @@ function normalizeQuotaName(rawQuota) {
                 const matchesExam = !selectedExam || String(item.Exam) === selectedExam;
                 const matchesYear = !selectedYear || String(item.Year) === selectedYear;
                 const matchesRound = !selectedRound || String(item.Round) === selectedRound;
-                const matchesQuota = !selectedQuota || String(item.Allotted_Quota) === selectedQuota;
+                const matchesQuota = !selectedQuota || String(item.Display_Quota || item.Allotted_Quota) === selectedQuota;
                 const matchesCategory = !selectedCategory || String(item.Allotted_Category) === selectedCategory;
                 const matchesCourse = !selectedCourse || 
                     (item.Display_Course && item.Display_Course.toLowerCase().includes(selectedCourse)) ||
@@ -1166,7 +1026,7 @@ function normalizeQuotaName(rawQuota) {
                         <td class="py-3 px-4 sm:px-6 font-medium">${item.Display_Institute || getCanonicalCollegeIdentity(item.Allotted_Institute)}${badge}</td>
                         <td class="py-3 px-4 sm:px-6">${item.Display_Course || normalizeCourseName(item.Course)}</td>
                         <td class="py-3 px-4 sm:px-6 space-y-1">
-                            <div><span class="inline-block px-2 py-0.5 text-xs bg-slate-100 rounded">${item.Allotted_Quota || ''}</span></div>
+                            <div><span class="inline-block px-2 py-0.5 text-xs bg-slate-100 rounded">${item.Display_Quota || item.Allotted_Quota || ''}</span></div>
                             <div><span class="inline-block px-2 py-0.5 text-xs bg-indigo-50 text-indigo-700 rounded">${item.Allotted_Category || ''}</span></div>
                         </td>
                         <td class="py-3 px-4 sm:px-6 font-bold text-emerald-600">${item.Opening_Rank ? item.Opening_Rank.toLocaleString() : '—'}</td>
