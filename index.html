@@ -415,50 +415,60 @@
         }
 
         async function triggerRazorpayPayment() {
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            if (!session) {
-                alert("Please log in first!");
-                openLoginModal();
-                return;
-            }
-
-            const options = {
-                key: RAZORPAY_KEY_ID,
-                amount: 2000,
-                currency: "INR",
-                name: "Medical PG Cutoff Portal",
-                description: "6-months Full Access",
-                prefill: { email: session.user.email },
-                theme: { color: "#4f46e5" },
- handler: async function (response) {
-    if (response.razorpay_payment_id) {
-        // Calculate expiry date (6 months from now)
-        const paidUntil = new Date();
-        paidUntil.setMonth(paidUntil.getMonth() + 6);
-
-        const { error } = await supabaseClient
-            .from('profiles')
-            .upsert({
-                id: session.user.id,
-                is_paid: true,
-                razorpay_payment_id: response.razorpay_payment_id,
-                paid_until: paidUntil.toISOString(),
-                updated_at: new Date().toISOString()
-            }, { onConflict: 'id' });
-
-        if (error) {
-            console.error("Supabase update error:", error);
-            alert("Payment succeeded, but updating account failed.\nPayment ID: " + response.razorpay_payment_id);
-        } else {
-            alert("🎉 Payment Successful! Full portal access unlocked for 6 months.");
-            window.userHasPaid = true;
-            document.getElementById('pro-badge').classList.remove('hidden');
-            filterAndRender();
-        }
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    
+    if (!session) {
+        alert("Please log in first!");
+        openLoginModal();
+        return;
     }
-}
-            new Razorpay(options).open();
+
+    const options = {
+        key: RAZORPAY_KEY_ID,
+        amount: 2000, // ₹20
+        currency: "INR",
+        name: "Medical PG Cutoff Portal",
+        description: "6-months Full Access",
+        prefill: { 
+            email: session.user.email 
+        },
+        theme: { 
+            color: "#4f46e5" 
+        },
+        handler: async function (response) {
+            if (response.razorpay_payment_id) {
+                // Calculate expiry date (6 months from now)
+                const paidUntil = new Date();
+                paidUntil.setMonth(paidUntil.getMonth() + 6);
+
+                const { error } = await supabaseClient
+                    .from('profiles')
+                    .upsert({
+                        id: session.user.id,
+                        is_paid: true,
+                        razorpay_payment_id: response.razorpay_payment_id,
+                        paid_until: paidUntil.toISOString(),
+                        updated_at: new Date().toISOString()
+                    }, { onConflict: 'id' });
+
+                if (error) {
+                    console.error("Supabase update error:", error);
+                    alert("Payment succeeded, but updating account failed.\nPayment ID: " + response.razorpay_payment_id);
+                } else {
+                    alert("🎉 Payment Successful! Full portal access unlocked for 6 months.");
+                    window.userHasPaid = true;
+                    document.getElementById('pro-badge').classList.remove('hidden');
+                    document.getElementById('pro-badge').classList.add('flex');
+                    filterAndRender();
+                }
+            }
         }
+    };
+
+    // This line must be outside the options object
+    const rzp = new Razorpay(options);
+    rzp.open();
+}
 
         // ========== MODAL CONTROLS ==========
         window.openLoginModal = function() {
