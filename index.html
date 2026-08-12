@@ -18,7 +18,6 @@
                     <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Medical PG Cutoff & Rank Portal</h1>
                     <p class="mt-1 text-indigo-100 text-sm">Find your eligible PG colleges in seconds from 70,000+ real allotment records</p>
                     
-                    <!-- Trust Badges -->
                     <div class="flex flex-wrap gap-3 mt-4 text-xs">
                         <span class="bg-white/10 backdrop-blur px-3 py-1 rounded-full">70,000+ Records</span>
                         <span class="bg-white/10 backdrop-blur px-3 py-1 rounded-full">NEET PG + INI-CET</span>
@@ -26,7 +25,6 @@
                     </div>
                 </div>
 
-                <!-- Auth -->
                 <div id="auth-container" class="flex items-center gap-2">
                     <button id="login-btn" onclick="openLoginModal()" class="bg-white text-indigo-800 hover:bg-indigo-50 px-5 py-2.5 rounded-xl text-sm font-bold transition shadow">
                         Login / Sign Up
@@ -47,8 +45,7 @@
         <div class="bg-white rounded-2xl shadow-md p-6 mb-6 border border-slate-200">
 
             <!-- Rank + Search -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
-                <!-- Rank -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-5">
                 <div class="md:col-span-1">
                     <label class="block text-sm font-bold text-indigo-900 mb-1.5">🎯 Enter Your Rank</label>
                     <input type="number" id="rankInput" placeholder="e.g. 2000"
@@ -56,7 +53,6 @@
                     <p class="text-xs text-slate-500 mt-1.5">Highlights colleges within your rank range</p>
                 </div>
 
-                <!-- College / City Search with Live Dropdown -->
                 <div class="md:col-span-2 relative">
                     <label class="block text-sm font-medium text-slate-700 mb-1.5">🔍 Search College, City or Specialty</label>
                     <input type="text" id="searchInput" placeholder="Type college, city or course..." autocomplete="off"
@@ -65,17 +61,13 @@
                 </div>
             </div>
 
-            <!-- Popular Course Chips -->
-            <div class="mb-5">
-                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Popular Courses</p>
-                <div class="flex flex-wrap gap-2" id="popularChips">
-                    <button onclick="applyPopularCourse('MD General Medicine')" class="px-3 py-1.5 text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-full border border-indigo-100 transition">General Medicine</button>
-                    <button onclick="applyPopularCourse('MD Radio Diagnosis')" class="px-3 py-1.5 text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-full border border-indigo-100 transition">Radiology</button>
-                    <button onclick="applyPopularCourse('MD Dermatology')" class="px-3 py-1.5 text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-full border border-indigo-100 transition">Dermatology</button>
-                    <button onclick="applyPopularCourse('MS Orthopaedics')" class="px-3 py-1.5 text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-full border border-indigo-100 transition">Orthopaedics</button>
-                    <button onclick="applyPopularCourse('MD Paediatrics')" class="px-3 py-1.5 text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-full border border-indigo-100 transition">Paediatrics</button>
-                    <button onclick="applyPopularCourse('MS Obstetrics')" class="px-3 py-1.5 text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-full border border-indigo-100 transition">OBG</button>
+            <!-- Recent Searches (Personal - localStorage) -->
+            <div id="recentSearchesContainer" class="mb-5 hidden">
+                <div class="flex items-center justify-between mb-2">
+                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Recent Searches</p>
+                    <button onclick="clearRecentSearches()" class="text-xs text-rose-500 hover:text-rose-700 font-medium">Clear all</button>
                 </div>
+                <div id="recentSearchesList" class="flex flex-wrap gap-2"></div>
             </div>
 
             <!-- Filters Grid -->
@@ -111,7 +103,6 @@
                     </select>
                 </div>
 
-                <!-- Course Combobox -->
                 <div class="relative">
                     <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Course</label>
                     <div class="relative" id="courseWrapper">
@@ -123,7 +114,6 @@
                 </div>
             </div>
 
-            <!-- Results Count + Reset -->
             <div class="mt-6 flex flex-wrap items-center justify-between gap-3 border-t pt-4 border-slate-100">
                 <span id="resultsCount" class="text-sm font-medium text-slate-600">Loading counseling datasets...</span>
                 <button id="resetBtn" class="text-sm text-indigo-600 hover:text-indigo-800 font-semibold underline">Reset All Filters</button>
@@ -154,8 +144,7 @@
         </div>
     </main>
 
-    <!-- ==================== MODALS (same as before + cleaned) ==================== -->
-    <!-- Login Gate -->
+    <!-- ==================== MODALS ==================== -->
     <div id="loginGateModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-[55] p-4">
         <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 sm:p-8 relative">
             <button onclick="closeLoginGate()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-2xl">&times;</button>
@@ -180,7 +169,6 @@
         </div>
     </div>
 
-    <!-- Login Modal -->
     <div id="loginModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-[50] p-4">
         <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8 relative">
             <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-2xl">&times;</button>
@@ -211,7 +199,6 @@
         </div>
     </div>
 
-    <!-- Disclaimer Modal -->
     <div id="disclaimerModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-[60] p-4">
         <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 sm:p-8 relative max-h-[85vh] flex flex-col">
             <div class="flex items-center justify-between border-b pb-4 mb-4">
@@ -245,6 +232,59 @@
         } catch (e) { console.error(e); }
 
         window.userHasPaid = false;
+
+        // ========== RECENT SEARCHES (localStorage) ==========
+        const RECENT_KEY = 'pg_cutoff_recent_searches';
+        const MAX_RECENT = 8;
+
+        function getRecentSearches() {
+            try {
+                return JSON.parse(localStorage.getItem(RECENT_KEY)) || [];
+            } catch {
+                return [];
+            }
+        }
+
+        function saveRecentSearch(term) {
+            if (!term || term.trim().length < 2) return;
+            term = term.trim();
+            let recent = getRecentSearches().filter(r => r.toLowerCase() !== term.toLowerCase());
+            recent.unshift(term);
+            if (recent.length > MAX_RECENT) recent = recent.slice(0, MAX_RECENT);
+            localStorage.setItem(RECENT_KEY, JSON.stringify(recent));
+            renderRecentSearches();
+        }
+
+        function clearRecentSearches() {
+            localStorage.removeItem(RECENT_KEY);
+            renderRecentSearches();
+        }
+
+        function renderRecentSearches() {
+            const container = document.getElementById('recentSearchesContainer');
+            const list = document.getElementById('recentSearchesList');
+            const recent = getRecentSearches();
+
+            if (recent.length === 0) {
+                container.classList.add('hidden');
+                return;
+            }
+
+            container.classList.remove('hidden');
+            list.innerHTML = recent.map(term => `
+                <button onclick="applyRecentSearch('${term.replace(/'/g, "\\'")}')" 
+                        class="px-3 py-1.5 text-xs bg-slate-100 hover:bg-indigo-50 text-slate-700 hover:text-indigo-700 rounded-full border border-slate-200 transition flex items-center gap-1.5">
+                    <span>${term}</span>
+                </button>
+            `).join('');
+        }
+
+        window.applyRecentSearch = function(term) {
+            searchInput.value = term;
+            filterAndRender();
+        };
+
+        window.clearRecentSearches = clearRecentSearches;
 
         // ========== AUTH ==========
         async function checkUserSession() {
@@ -420,7 +460,6 @@
         const resultsCount = document.getElementById('resultsCount');
         const resetBtn = document.getElementById('resetBtn');
 
-        // Load data
         Promise.all(jsonFiles.map(f => fetch(`./${f}`).then(r => r.ok ? r.json() : []).catch(() => [])))
         .then(datasets => {
             allData = datasets.flat();
@@ -429,15 +468,15 @@
                 return;
             }
 
-            // Collect institutes & cities for autocomplete
             const instSet = new Set();
             const citySet = new Set();
             allData.forEach(item => {
-                if (item.Allotted_Institute) instSet.add(item.Allotted_Institute);
-                // simple city extraction (last part after comma if exists)
-                if (item.Allotted_Institute && item.Allotted_Institute.includes(',')) {
-                    const parts = item.Allotted_Institute.split(',');
-                    citySet.add(parts[parts.length-1].trim());
+                if (item.Allotted_Institute) {
+                    instSet.add(item.Allotted_Institute);
+                    if (item.Allotted_Institute.includes(',')) {
+                        const parts = item.Allotted_Institute.split(',');
+                        citySet.add(parts[parts.length-1].trim());
+                    }
                 }
             });
             allInstitutes = Array.from(instSet).sort();
@@ -445,6 +484,7 @@
 
             populateExamsDropdown(allData);
             updateCascadingDropdowns();
+            renderRecentSearches();
             filterAndRender();
         });
 
@@ -479,7 +519,7 @@
             refresh(quotaFilter, quotas, "All Quotas");
             refresh(categoryFilter, categories, "All Categories");
 
-            // Smart course ordering: MD/MS first
+            // MD / MS first
             filteredCoursesList = Array.from(courses).sort((a, b) => {
                 const score = (c) => {
                     c = c.toUpperCase();
@@ -496,7 +536,7 @@
             }
         }
 
-        // ===== LIVE SEARCH DROPDOWN =====
+        // Live Search Dropdown
         function renderSearchDropdown(query) {
             query = query.toLowerCase().trim();
             if (!query || query.length < 2) {
@@ -505,18 +545,14 @@
             }
 
             const matches = [];
-            // Institutes
             allInstitutes.forEach(inst => {
                 if (inst.toLowerCase().includes(query)) matches.push({ type: 'College', value: inst });
             });
-            // Cities
             allCities.forEach(city => {
                 if (city.toLowerCase().includes(query)) matches.push({ type: 'City', value: city });
             });
 
-            // Limit results
             const limited = matches.slice(0, 12);
-
             if (limited.length === 0) {
                 searchDropdown.innerHTML = `<div class="p-3 text-xs text-slate-400 text-center">No matches found</div>`;
             } else {
@@ -533,6 +569,7 @@
         window.selectSearchSuggestion = function(val) {
             searchInput.value = val;
             searchDropdown.classList.add('hidden');
+            saveRecentSearch(val);          // save to recent
             filterAndRender();
         };
 
@@ -541,19 +578,23 @@
             filterAndRender();
         });
         searchInput.addEventListener('focus', () => renderSearchDropdown(searchInput.value));
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && searchInput.value.trim().length >= 2) {
+                saveRecentSearch(searchInput.value);
+            }
+        });
         document.addEventListener('click', (e) => {
             if (!searchInput.contains(e.target) && !searchDropdown.contains(e.target)) {
                 searchDropdown.classList.add('hidden');
             }
         });
 
-        // ===== COURSE DROPDOWN (MD/MS first) =====
+        // Course Dropdown
         function renderCourseDropdown(filterText = "") {
             const query = filterText.toLowerCase().trim();
             const matches = filteredCoursesList.filter(c => c.toLowerCase().includes(query));
 
             let html = `<div class="p-2.5 text-xs font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 cursor-pointer border-b" onclick="selectCourse('')">All Courses (Clear)</div>`;
-            
             if (matches.length === 0) {
                 html += `<div class="p-3 text-xs text-slate-400 text-center">No matching courses</div>`;
             } else {
@@ -573,12 +614,6 @@
             filterAndRender();
         };
 
-        window.applyPopularCourse = function(name) {
-            selectedCourseValue = name;
-            courseInput.value = name;
-            filterAndRender();
-        };
-
         courseInput.addEventListener('focus', () => renderCourseDropdown(courseInput.value));
         courseInput.addEventListener('input', () => {
             selectedCourseValue = courseInput.value;
@@ -589,7 +624,7 @@
             if (!courseWrapper.contains(e.target)) courseDropdown.classList.add('hidden');
         });
 
-        // ===== FILTER & RENDER =====
+        // Filter & Render
         function filterAndRender() {
             const userRank = parseInt(rankInput.value);
             const searchVal = searchInput.value.toLowerCase().trim();
@@ -627,7 +662,6 @@
                 return;
             }
 
-            // Smart free preview
             const hasAnyFilter = examFilter.value || yearFilter.value || roundFilter.value ||
                                  quotaFilter.value || categoryFilter.value || selectedCourseValue ||
                                  rankInput.value || searchInput.value;
@@ -718,7 +752,6 @@
             filterAndRender();
         });
 
-        // Auth state + checkbox
         if (supabaseClient) {
             supabaseClient.auth.onAuthStateChange((event, session) => {
                 if (event === 'SIGNED_IN' && session) {
@@ -730,6 +763,7 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             checkUserSession();
+            renderRecentSearches();
 
             const checkbox = document.getElementById('disclaimerCheckbox');
             const continueBtn = document.getElementById('continueToLoginBtn');
@@ -750,7 +784,6 @@
         });
     </script>
 
-    <!-- Footer -->
     <footer class="max-w-7xl mx-auto px-4 py-8 text-center border-t border-slate-200 mt-12">
         <p class="text-xs text-slate-500">© 2026 Medical PG Cutoff Portal. Independent & Unofficial Student Reference Tool.</p>
         <p class="text-xs text-slate-400 mt-1">
