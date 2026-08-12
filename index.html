@@ -619,87 +619,185 @@
             return `${coreName}${acronymTag}${pinTag}`;
         }
 
-        // 🩺 COMPREHENSIVE COURSE NORMALIZER (INI-CET & NEET PG)
-        function normalizeCourseName(rawCourse) {
-            if (!rawCourse) return "N/A";
+        // 🩺 HIGH-PRECISION COURSE NORMALIZER (Complete Fix)
+function normalizeCourseName(rawCourse) {
+    if (!rawCourse) return "N/A";
 
-            let str = rawCourse.trim();
-            let upper = str.toUpperCase().replace(/\s+/g, ' ');
+    let str = rawCourse.trim();
+    let upper = str.toUpperCase().replace(/\s+/g, ' ');
 
-            // Fix OCR/PDF typos (e.g. "Anaesthesiolo Gy", "Ophthalmolog Y")
-            upper = upper.replace(/ANAESTHESIOLO\s*GY/gi, 'ANAESTHESIOLOGY')
-                         .replace(/ANAESTHESIOLOG\s*Y/gi, 'ANAESTHESIOLOGY')
-                         .replace(/OPHTHALMOLOG\s*Y/gi, 'OPHTHALMOLOGY')
-                         .replace(/CARDIOTHORASIC/gi, 'CARDIOTHORACIC');
+    // 1. Fix OCR / spacing typos in raw PDFs
+    upper = upper.replace(/ANAESTHESIOLO\s*GY/gi, 'ANAESTHESIOLOGY')
+                 .replace(/ANAESTHESIOLOG\s*Y/gi, 'ANAESTHESIOLOGY')
+                 .replace(/OPHTHALMOLOG\s*Y/gi, 'OPHTHALMOLOGY')
+                 .replace(/CARDIOTHORASIC/gi, 'CARDIOTHORACIC');
 
-            // INI-CET & NEET PG Super Specialities / 6-Year Courses
-            if (/CARDIOTHORACIC.*VASCULAR.*6 YEARS/i.test(upper)) return 'Cardiothoracic & Vascular Surgery (M.Ch 6 Years)';
-            if (/\b(CFM|CFMFM|COMMUNITY & FAMILY MEDICINE)\b/i.test(upper)) return 'Community & Family Medicine (CFM)';
-            if (/CONSERVATIVE DENTISTRY/i.test(upper)) return 'Conservative Dentistry & Endodontics';
-            if (/(PLASTIC|BURNS).*RECONSTRUCTIVE.*6 YEARS/i.test(upper) || /BURNS & PLASTIC SURGERY.*6 YEARS/i.test(upper)) return 'Plastic & Reconstructive Surgery (M.Ch 6 Years)';
-            if (/TRAUMA.*(SURGERY|EMERGENCY|CRITICAL)/i.test(upper)) return 'Trauma & Emergency Surgery';
-            if (/INFECTIOUS DISEASES.*6 YEARS/i.test(upper)) return 'Infectious Diseases (DM 6 Years)';
-            if (/NEUROLOGY.*6 YEARS/i.test(upper)) return 'Neurology (DM 6 Years)';
-            if (/NEURO SURGERY.*6 YEARS|NEUROSURGERY.*6 YEARS|M\.CH\.?\s*\(NEURO SURGERY\)/i.test(upper)) return 'Neurosurgery (M.Ch 6 Years)';
-            if (/PAEDIATRIC SURGERY.*6 YEARS/i.test(upper)) return 'Paediatric Surgery (M.Ch 6 Years)';
-            if (/SURGICAL GASTROENTEROLOGY.*6 YEARS/i.test(upper)) return 'Surgical Gastroenterology (M.Ch 6 Years)';
-            if (/UROLOGY.*6 YEARS/i.test(upper)) return 'Urology (M.Ch 6 Years)';
-            if (/PERIODONT/i.test(upper)) return 'Periodontics & Periodontology';
+    // 2. Exact Qualification Type Detection
+    const isNBEMSDiploma = /NBEMS\s*-\s*DIPLOMA/i.test(upper);
+    const isDNB = /\b(DNB|NBEMS|NBE|DIPLOMATE)\b/i.test(upper) && !isNBEMSDiploma;
+    const isStateDiploma = /\b(DIPLOMA|DIP\.|DIP\b)/i.test(upper) && !isDNB && !isNBEMSDiploma;
 
-            // NBEMS Direct 6 Years Courses
-            if (/CARDIO VASCULAR.*DIRECT 6 YEARS/i.test(upper)) return '(NBEMS) Cardio Vascular & Thoracic Surgery (Direct 6 Years)';
-            if (/NEURO SURGERY.*DIRECT 6 YEARS/i.test(upper)) return '(NBEMS) Neurosurgery (Direct 6 Years)';
-            if (/PAEDIATRIC SURGERY.*DIRECT 6 YEARS/i.test(upper)) return '(NBEMS) Paediatric Surgery (Direct 6 Years)';
-            if (/PLASTIC.*DIRECT 6 YEARS/i.test(upper)) return '(NBEMS) Plastic & Reconstructive Surgery (Direct 6 Years)';
+    // Helper formatter
+    const formatCourse = (standardName, mdMsPrefix = 'MD') => {
+        if (isNBEMSDiploma) return `NBEMS Diploma in ${standardName}`;
+        if (isDNB) return `DNB (${standardName})`;
+        if (isStateDiploma) return `Diploma in ${standardName}`;
+        return `${mdMsPrefix} (${standardName})`;
+    };
 
-            // Diplomas (NBEMS / NBE / State / CPS)
-            if (/DIPLOMA.*ANAESTHES/i.test(upper) || /\(NBEMS - DIPLOMA\)\s*ANAESTHES/i.test(upper) || /\(NBEMS\)\s*ANAESTHES/i.test(upper)) return 'Diploma in Anaesthesiology';
-            if (/DIPLOMA.*FAMILY MEDICINE/i.test(upper) || /\(NBEMS\)\s*FAMILY MEDICINE/i.test(upper)) return 'Diploma in Family Medicine';
-            if (/DIPLOMA.*RADIO.*DIAGNOSIS/i.test(upper) || /\(NBEMS\)\s*RADIO.*DIAGNOSIS/i.test(upper) || /DIP\.IN MEDICAL RADIO/i.test(upper)) return 'Diploma in Radiodiagnosis';
-            if (/DIPLOMA.*EMERGENCY MEDICINE/i.test(upper)) return 'Diploma in Emergency Medicine';
-            if (/DIPLOMA.*ENT/i.test(upper) || /OTO\s*-\s*RHINO/i.test(upper)) return 'Diploma in ENT (Otorhinolaryngology)';
-            if (/DIPLOMA.*OPHTHALMOLOGY/i.test(upper)) return 'Diploma in Ophthalmology';
-            if (/DIPLOMA.*ORTHOPAEDICS/i.test(upper)) return 'Diploma in Orthopaedics';
-            if (/DIPLOMA.*PAEDIATRICS/i.test(upper)) return 'Diploma in Paediatrics';
-            if (/DIPLOMA.*PATHOLOGY/i.test(upper)) return 'Diploma in Pathology';
-            if (/DIPLOMA.*RESPIRATORY|T\.B\.?\s*&\s*CHEST/i.test(upper)) return 'Diploma in Respiratory Medicine / DTCD';
-            if (/DIPLOMA.*OBSTETRICS|DIP\.IN GYNAE/i.test(upper)) return 'Diploma in Obstetrics & Gynaecology (DGO)';
-            if (/DIPLOMA.*PSYCHIATR/i.test(upper)) return 'Diploma in Psychological Medicine (DPM)';
-            if (/DIPLOMA.*PUBLIC HEALTH/i.test(upper)) return 'Diploma in Public Health (DPH)';
+    // -------------------------------------------------------------
+    // SECTION 1: DNB / M.CH / DM DIRECT 6-YEAR & SUPER SPECIALTY
+    // -------------------------------------------------------------
+    if (/INTERVENTIONAL RADIOLOGY/i.test(upper)) {
+        return formatCourse('Interventional Radiology', 'MD/DM');
+    }
+    if (/CARDIOTHORACIC.*VASCULAR.*(6 YEARS|DIRECT)/i.test(upper)) {
+        return isDNB ? 'DNB (Cardiothoracic & Vascular Surgery - Direct 6 Years)' : 'M.Ch (Cardiothoracic & Vascular Surgery 6 Years)';
+    }
+    if (/BURNS & PLASTIC SURGERY.*6 YEARS/i.test(upper)) {
+        return 'M.Ch (Burns & Plastic Surgery 6 Years)';
+    }
+    if (/PLASTIC.*RECONSTRUCTIVE.*(6 YEARS|DIRECT)/i.test(upper)) {
+        return isDNB ? 'DNB (Plastic & Reconstructive Surgery - Direct 6 Years)' : 'M.Ch (Plastic & Reconstructive Surgery 6 Years)';
+    }
+    if (/NEURO\s*SURGERY.*(6 YEARS|DIRECT)|M\.CH\.?\s*\(NEURO SURGERY\)/i.test(upper)) {
+        return isDNB ? 'DNB (Neurosurgery - Direct 6 Years)' : 'M.Ch (Neurosurgery 6 Years)';
+    }
+    if (/PAEDIATRIC SURGERY.*(6 YEARS|DIRECT)/i.test(upper)) {
+        return isDNB ? 'DNB (Paediatric Surgery - Direct 6 Years)' : 'M.Ch (Paediatric Surgery 6 Years)';
+    }
+    if (/SURGICAL GASTROENTEROLOGY.*6 YEARS/i.test(upper)) {
+        return 'M.Ch (Surgical Gastroenterology 6 Years)';
+    }
+    if (/UROLOGY.*6 YEARS/i.test(upper)) {
+        return 'M.Ch (Urology 6 Years)';
+    }
+    if (/NEUROLOGY.*6 YEARS/i.test(upper)) {
+        return 'DM (Neurology 6 Years)';
+    }
+    if (/INFECTIOUS DISEASES.*6 YEARS/i.test(upper)) {
+        return 'DM (Infectious Diseases 6 Years)';
+    }
+    if (/TRAUMA SURGERY.*CRITICAL CARE.*6 YEARS/i.test(upper)) {
+        return 'M.Ch (Trauma Surgery & Critical Care 6 Years)';
+    }
 
-            // Regular MD / MS Core Branches
-            if (/GENERAL MEDICINE|INTERNAL MEDICINE|\bMEDICINE\b/i.test(upper)) return 'MD (General Medicine)';
-            if (/GENERAL SURGERY|\bSURGERY\b/i.test(upper)) return 'MS (General Surgery)';
-            if (/RADIO-?DIAGNOSIS|RADIOLOGY/i.test(upper)) return 'MD (Radiodiagnosis)';
-            if (/ANAESTHESIOLOGY|ANESTHESIOLOGY/i.test(upper)) return 'MD (Anaesthesiology)';
-            if (/DERMATOLOGY|DVL|VENEREOLOGY/i.test(upper)) return 'MD (Dermatology, Venereology & Leprosy)';
-            if (/PAEDIATRICS|PEDIATRICS/i.test(upper)) return 'MD (Paediatrics)';
-            if (/OBSTETRICS.*GYNAECOLOGY|OBS.*GYN/i.test(upper)) return 'MD/MS (Obstetrics & Gynaecology)';
-            if (/ORTHOPAEDICS|ORTHOPEDICS/i.test(upper)) return 'MS (Orthopaedics)';
-            if (/OPHTHALMOLOGY/i.test(upper)) return 'MS (Ophthalmology)';
-            if (/ENT|OTORHINOLARYNGOLOGY|MS\.\s*\(E\.N\.T\.\)/i.test(upper)) return 'MS (ENT / Otorhinolaryngology)';
-            if (/COMMUNITY MEDICINE|PREVENTIVE|COMMUNITY HEALTH/i.test(upper)) return 'MD (Community Medicine / PSM)';
-            if (/PATHOLOGY/i.test(upper)) return 'MD (Pathology)';
-            if (/MICROBIOLOGY|BACTERIOLOGY/i.test(upper)) return 'MD (Microbiology)';
-            if (/PHARMACOLOGY/i.test(upper)) return 'MD (Pharmacology)';
-            if (/PHYSIOLOGY/i.test(upper)) return 'MD (Physiology)';
-            if (/ANATOMY/i.test(upper)) return 'MD (Anatomy)';
-            if (/BIOCHEMISTRY/i.test(upper)) return 'MD (Biochemistry)';
-            if (/PSYCHIATRY/i.test(upper)) return 'MD (Psychiatry)';
-            if (/EMERGENCY MEDICINE/i.test(upper)) return 'MD (Emergency Medicine)';
-            if (/GERIATRIC/i.test(upper)) return 'MD (Geriatric Medicine)';
-            if (/PALLIATIVE/i.test(upper)) return 'MD (Palliative Medicine)';
-            if (/PHYSICAL MED|PMR/i.test(upper)) return 'MD (Physical Medicine & Rehabilitation)';
-            if (/RESPIRATORY|PULMONARY|CHEST/i.test(upper)) return 'MD (Respiratory / Pulmonary Medicine)';
-            if (/TRANSFUSION|BLOOD/i.test(upper)) return 'MD (Transfusion Medicine)';
-            if (/LAB.*MEDICINE|MDLABORATORY/i.test(upper)) return 'MD (Laboratory Medicine)';
-            if (/FORENSIC/i.test(upper)) return 'MD (Forensic Medicine)';
-            if (/RADIATION ONCOLOGY|RADIOTHERAPY/i.test(upper)) return 'MD (Radiation Oncology / Radiotherapy)';
-            if (/SPORTS MEDICINE/i.test(upper)) return 'MD (Sports Medicine)';
-            if (/HOSPITAL ADMINISTRATION/i.test(upper)) return 'MD (Hospital Administration)';
+    // -------------------------------------------------------------
+    // SECTION 2: STANDALONE & NICHE MD/MS/MPH COURSES
+    // -------------------------------------------------------------
+    if (/AEROSPACE MEDICINE/i.test(upper)) return 'MD (Aerospace Medicine)';
+    if (/TROPICAL MEDICINE/i.test(upper)) return 'MD (Tropical Medicine)';
+    if (/SPORTS MEDICINE/i.test(upper)) return formatCourse('Sports Medicine', 'MD');
+    if (/EPIDEMIOLOGY|M\.P\.H\./i.test(upper)) return 'MPH (Epidemiology)';
+    if (/GERIATRIC/i.test(upper)) return formatCourse('Geriatric Medicine', 'MD');
+    if (/PALLIATIVE/i.test(upper)) return formatCourse('Palliative Medicine', 'MD');
+    if (/RADIATION MEDICINE/i.test(upper) && !/ONCOLOGY|THERAPY/i.test(upper)) return 'Diploma in Radiation Medicine (DRM)';
+    if (/LAB.*MEDICINE|MDLABORATORY/i.test(upper)) return 'MD (Laboratory Medicine)';
+    if (/BIOPHYSICS/i.test(upper)) return 'MD/M.Sc (Biophysics)';
 
-            return str;
-        }
+    // -------------------------------------------------------------
+    // SECTION 3: FAMILY & COMMUNITY MEDICINE (Separated from Gen Med)
+    // -------------------------------------------------------------
+    if (/\b(CFM|CFMFM|COMMUNITY & FAMILY MEDICINE)\b/i.test(upper)) {
+        return 'Community & Family Medicine (CFM)';
+    }
+    if (/FAMILY MEDICINE/i.test(upper)) {
+        return formatCourse('Family Medicine', 'MD');
+    }
+    if (/COMMUNITY MEDICINE|PREVENTIVE|COMMUNITY HEALTH/i.test(upper)) {
+        return formatCourse('Community Medicine / PSM', 'MD');
+    }
+
+    // -------------------------------------------------------------
+    // SECTION 4: CORE MD / MS BRANCHES
+    // -------------------------------------------------------------
+    if (/RADIO-?DIAGNOSIS|\bRADIOLOGY\b/i.test(upper)) {
+        return formatCourse('Radiodiagnosis', 'MD');
+    }
+    if (/RADIATION ONCOLOGY|RADIOTHERAPY/i.test(upper)) {
+        return formatCourse('Radiation Oncology / Radiotherapy', 'MD');
+    }
+    if (/GENERAL MEDICINE|INTERNAL MEDICINE|\bMEDICINE\b/i.test(upper)) {
+        return formatCourse('General Medicine', 'MD');
+    }
+    if (/GENERAL SURGERY|\bSURGERY\b/i.test(upper)) {
+        return formatCourse('General Surgery', 'MS');
+    }
+    if (/OBSTETRICS.*GYNAECOLOGY|OBGYN|OBS.*GYN|GYNAE\.\s*\&\s*OBST/i.test(upper)) {
+        return formatCourse('Obstetrics & Gynaecology', 'MD/MS');
+    }
+    if (/ANAESTHESIOLOGY|ANESTHESIOLOGY|ANAESTHESIA/i.test(upper)) {
+        return formatCourse('Anaesthesiology', 'MD');
+    }
+    if (/DERMATOLOGY|DVL|VENEREOLOGY|LEPROSY/i.test(upper)) {
+        return formatCourse('Dermatology, Venereology & Leprosy', 'MD');
+    }
+    if (/PAEDIATRICS|PEDIATRICS/i.test(upper)) {
+        return formatCourse('Paediatrics', 'MD');
+    }
+    if (/ORTHOPAEDICS|ORTHOPEDICS/i.test(upper)) {
+        return formatCourse('Orthopaedics', 'MS');
+    }
+    if (/OPHTHALMOLOGY/i.test(upper)) {
+        return formatCourse('Ophthalmology', 'MS');
+    }
+    if (/ENT|OTORHINOLARYNGOLOGY|OTO\s*-\s*RHINO/i.test(upper)) {
+        return formatCourse('ENT / Otorhinolaryngology', 'MS');
+    }
+    if (/PATHOLOGY/i.test(upper)) {
+        return formatCourse('Pathology', 'MD');
+    }
+    if (/MICROBIOLOGY|BACTERIOLOGY/i.test(upper)) {
+        return formatCourse('Microbiology', 'MD');
+    }
+    if (/PHARMACOLOGY/i.test(upper)) {
+        return formatCourse('Pharmacology', 'MD');
+    }
+    if (/PHYSIOLOGY/i.test(upper)) {
+        return formatCourse('Physiology', 'MD');
+    }
+    if (/ANATOMY/i.test(upper)) {
+        return formatCourse('Anatomy', 'MD');
+    }
+    if (/BIOCHEMISTRY/i.test(upper)) {
+        return formatCourse('Biochemistry', 'MD');
+    }
+    if (/PSYCHIATRY|PSYCHOLOGICAL/i.test(upper)) {
+        return formatCourse('Psychiatry', 'MD');
+    }
+    if (/EMERGENCY MEDICINE/i.test(upper)) {
+        return formatCourse('Emergency Medicine', 'MD');
+    }
+    if (/PHYSICAL MED|PMR/i.test(upper)) {
+        return formatCourse('Physical Medicine & Rehabilitation', 'MD');
+    }
+    if (/RESPIRATORY|PULMONARY|CHEST|TUBERCULOSIS|T\.B\./i.test(upper)) {
+        return formatCourse('Respiratory / Pulmonary Medicine', 'MD');
+    }
+    if (/TRANSFUSION|BLOOD/i.test(upper)) {
+        return formatCourse('Transfusion Medicine', 'MD');
+    }
+    if (/FORENSIC|FMT/i.test(upper)) {
+        return formatCourse('Forensic Medicine', 'MD');
+    }
+    if (/NUCLEAR MEDICINE/i.test(upper)) {
+        return formatCourse('Nuclear Medicine', 'MD');
+    }
+
+    // -------------------------------------------------------------
+    // SECTION 5: DENTAL (MDS) COURSES
+    // -------------------------------------------------------------
+    if (/CONSERVATIVE DENTISTRY/i.test(upper)) return 'MDS (Conservative Dentistry & Endodontics)';
+    if (/PERIODONT/i.test(upper)) return 'MDS (Periodontics & Periodontology)';
+    if (/PROSTHODONT/i.test(upper)) return 'MDS (Prosthodontics)';
+    if (/ORTHODONT/i.test(upper)) return 'MDS (Orthodontics)';
+    if (/PEDODONT/i.test(upper)) return 'MDS (Pedodontics)';
+    if (/ORAL & MAXILLOFACIAL/i.test(upper)) return 'MDS (Oral & Maxillofacial Surgery)';
+    if (/PUBLIC HEALTH DENTISTRY/i.test(upper)) return 'MDS (Public Health Dentistry)';
+
+    // Fallback cleaner
+    return str.replace(/\s+/g, ' ').replace(/\s*,\s*/g, ', ').replace(/\s*-\s*/g, ' - ');
+}
 
         // 🔍 DEDUPLICATED SEARCH SUGGESTIONS GENERATOR
         function renderSearchSuggestions(query) {
