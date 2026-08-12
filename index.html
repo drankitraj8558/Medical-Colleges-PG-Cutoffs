@@ -353,7 +353,7 @@
             validTill.innerText = '';
         }
 
-        if (typeof filterAndRender === 'function') filterAndRender();
+        if (typeof filterAnd=== 'function') filterAndRender();
 
     } catch (err) {
         console.error("Error checking payment status:", err.message);
@@ -596,16 +596,19 @@ rzp.open();
             refresh(quotaFilter, quotas, "All Quotas");
             refresh(categoryFilter, categories, "All Categories");
 
-            // MD / MS first
-            filteredCoursesList = Array.from(courses).sort((a, b) => {
-                const score = (c) => {
-                    c = c.toUpperCase();
-                    if (c.startsWith('MD ') || c.startsWith('MS ')) return 0;
-                    if (c.includes('DIPLOMA') || c.includes('DNB')) return 1;
-                    return 2;
-                };
-                return score(a) - score(b) || a.localeCompare(b);
-            });
+         // MD / MS first + Normalize course names
+filteredCoursesList = Array.from(courses)
+    .map(c => normalizeCourseName(c))
+    .filter((v, i, arr) => arr.indexOf(v) === i) // remove duplicates after normalization
+    .sort((a, b) => {
+        const score = (c) => {
+            c = c.toUpperCase();
+            if (c.startsWith('MD ') || c.startsWith('MS ')) return 0;
+            if (c.includes('DIPLOMA') || c.includes('DNB')) return 1;
+            return 2;
+        };
+        return score(a) - score(b) || a.localeCompare(b);
+    });
 
             if (selectedCourseValue && !courses.has(selectedCourseValue)) {
                 selectedCourseValue = "";
@@ -635,7 +638,7 @@ rzp.open();
             } else {
                 searchDropdown.innerHTML = limited.map(m => `
                     <div class="px-4 py-2.5 hover:bg-indigo-50 cursor-pointer text-sm flex justify-between items-center" onclick="selectSearchSuggestion('${m.value.replace(/'/g, "\\'")}')">
-                        <span>${m.value}</span>
+                        <span>${m.type === 'College' ? getCanonicalCollegeIdentity(m.value) : m.value}</span>
                         <span class="text-[10px] text-slate-400 uppercase">${m.type}</span>
                     </div>
                 `).join('');
@@ -677,7 +680,7 @@ rzp.open();
             } else {
                 matches.forEach(course => {
                     const safe = course.replace(/'/g, "\\'");
-                    html += `<div class="p-2.5 text-xs hover:bg-indigo-50 cursor-pointer" onclick="selectCourse('${safe}')">${course}</div>`;
+                  html += `<div class="p-2.5 text-xs hover:bg-indigo-50 cursor-pointer" onclick="selectCourse('${safe}')">${normalizeCourseName(course)}</div>`;
                 });
             }
             courseDropdown.innerHTML = html;
