@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 100" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="iconGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366F1" />
+      <stop offset="100%" stop-color="#3730A3" />
+    </linearGradient>
+    <linearGradient id="chartGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#34D399" />
+      <stop offset="100%" stop-color="#10B981" />
+    </linearGradient>
+  </defs>
+
+  <!-- Logo Icon Badge -->
+  <g transform="translate(10, 10)">
+    <!-- Base Shield/Tile -->
+    <rect x="0" y="0" width="80" height="80" rx="22" fill="url(#iconGrad)"/>
+    
+    <!-- Rank Analytics Bar Graph -->
+    <rect x="20" y="48" width="8" height="18" rx="2" fill="#FFFFFF" opacity="0.5"/>
+    <rect x="32" y="38" width="8" height="28" rx="2" fill="#FFFFFF" opacity="0.8"/>
+    <rect x="44" y="26" width="8" height="40" rx="2" fill="url(#chartGrad)"/>
+    
+    <!-- Target Badge -->
+    <circle cx="58" cy="22" r="7" fill="#F59E0B"/>
+    <circle cx="58" cy="22" r="3" fill="#FFFFFF"/>
+    
+    <!-- Medical Stethoscope / Pulse Line -->
+    <path d="M 16 52 Q 28 68 40 68 Q 58 68 64 50" fill="none" stroke="#FFFFFF" stroke-width="3.5" stroke-linecap="round" opacity="0.9"/>
+  </g>
+
+  <!-- Brand Name Text -->
+  <text x="106" y="50" font-family="Inter, system-ui, sans-serif" font-weight="900" font-size="32" fill="#1E293B" letter-spacing="-0.5">
+    Medico<tspan fill="#F59E0B">Cutoff</tspan>
+  </text>
+  
+  <!-- Subtitle -->
+  <text x="106" y="72" font-family="Inter, system-ui, sans-serif" font-weight="700" font-size="12" fill="#64748B" letter-spacing="0.8">
+    NEET PG &amp; INI-CET CUTOFF PORTAL
+  </text>
+</svg>
