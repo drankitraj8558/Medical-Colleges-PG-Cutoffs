@@ -699,62 +699,6 @@
 
         // 🩺 HIGH-PRECISION COURSE NORMALIZER & DICTIONARY
         const COURSE_DICTIONARY = [
-       
-
-            // RULE 3: Radio-Diagnosis & Interventional Radiology
-            { 
-                pattern: /RADIODIAGNOSIS\s*(\&|AND)\s*INTERN?VENTIONAL\s*RADIOLOGY/i, 
-                standard: 'MD (Radiodiagnosis & Interventional Radiology)' 
-            },
-            { 
-                pattern: /\(NBEMS-?DIPLOMA\)\s*RADIO-?\s*DIAGNOSIS|DIPLOMA\s*IN\s*\(?RADIODIAGNOSIS\)?|DIPLOMA\s*IN\s*MEDICAL\s*RADIO-?\s*DIAGNOSIS|\(NBEMS\)\s*RADIO-?\s*DIAGNOSIS|DIP\.IN\s*MEDICAL\s*RADIO\s*-\s*DIAGNOSIS/i, 
-                standard: '(NBEMS-Diploma) Radio-Diagnosis' 
-            },
-      
-
-            // RULE 11: Radiotherapy Diploma & MD Radiation Oncology
-            { 
-                pattern: /DIP\.\s*IN\s*MEDICAL\s*RADIO-?\s*THERAPY/i, 
-                standard: 'Diploma in Medical Radiotherapy' 
-            },
-            { 
-                pattern: /RADIATION ONCOLOGY|RADIOTHERAPY/i, 
-                standard: 'MD (Radiation Oncology)' 
-            },
-
-            // RULE 1: Anaesthesiology / Anaesthesia
-            { 
-                pattern: /\(NBEMS-?DIPLOMA\)\s*ANAESTHESIOLOG?\s*Y?|\(NBEMS\)\s*ANAESTHESIOLOG?\s*Y?|DIPLOMA\s*IN\s*\(?ANAESTHESIOLOG?\s*Y?\)?/i, 
-                standard: '(NBEMS-Diploma) Anaesthesiology' 
-            },
-            { 
-                pattern: /^ANAESTHESIA$/i, 
-                standard: 'Anaesthesia' 
-            },
-            { 
-                pattern: /MD\s*\(ANAESTHESIOLOGY\)|ANAESTHESIOLOGY|ANESTHESIOLOGY/i, 
-                standard: 'MD (Anaesthesiology)' 
-            },
-
-            // RULE 2: Family Medicine & CFM
-            { 
-                pattern: /^CFM$|^CMFM$|CFM\s*\(COMMUNITY\s*\&\s*FAMILY\s*MEDICINE\)|COMMUNITY\s*(AND|\&)\s*FAMILY\s*MEDICINE/i, 
-                standard: 'MD (Community and Family Medicine)' 
-            },
-            { 
-                pattern: /\(NBEMS-?DIPLOMA\)\s*FAMILY\s*MEDICINE|\(NBEMS\)\s*FAMILY\s*MEDICINE/i, 
-                standard: '(NBEMS-Diploma) Family Medicine' 
-            },
-            { 
-                pattern: /MD\.?\s*\(FAMILY\s*MEDICINE\)/i, 
-                standard: 'MD (Family Medicine)' 
-            },
-            { 
-                pattern: /^FAMILY\s*MEDICINE$/i, 
-                standard: 'Family Medicine' 
-            },
-            { 
-                pattern: /COMMUNITY MEDICINE|PREVENTIVE.*SOCIAL/i, 
    
             // -------------------------------------------------------------
             // GROUP 28: CTVS 6 Years (Merge 28a, 28c, 28d, 28e)
