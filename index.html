@@ -701,294 +701,238 @@
 // Handles broken spacing, OCR garbage, mixed case, and all known variants.
 // Order is critical: most specific patterns first.
 
+// 🩺 HIGH-PRECISION COURSE NORMALIZER & DICTIONARY
 const COURSE_DICTIONARY = [
-
-    // ========== 6-YEAR SUPER SPECIALTY (M.Ch / DM) ==========
-    {
-        pattern: /CARDIOTHORA[CS]IC|CTVS|CARDIO\s*VASCULAR\s*(AND|&)?\s*THORACIC/i,
-        standard: 'M.Ch (Cardiothoracic & Vascular Surgery 6 Years)'
+    // -------------------------------------------------------------
+    // SUPER SPECIALTY / 6-YEAR DIRECT COURSES
+    // -------------------------------------------------------------
+    { 
+        pattern: /CARDIOTHORA[CS]IC.*VASCULAR.*(M\.?CH|6\s*YEARS)/i, 
+        standard: 'M.Ch (Cardiothoracic & Vascular Surgery 6 Years)' 
     },
-    {
-        pattern: /NEURO\s*SURGERY|NEUROSURGERY/i,
-        standard: 'M.Ch (Neurosurgery 6 Years)'
+    { 
+        pattern: /NEURO\s*SURGERY.*(M\.?CH|6\s*YEAR|6\s*YERAR)|M\.CH\.?\s*\(NEURO\s*SURGERY\)/i, 
+        standard: 'M.Ch (Neurosurgery 6 Years)' 
     },
-    {
-        pattern: /PLASTIC\s*(AND|&)?\s*RECONSTRUCT(?:IVE)?|BURNS\s*(AND|&)?\s*PLASTIC/i,
-        standard: 'M.Ch (Plastic & Reconstructive Surgery 6 Years)'
+    { 
+        pattern: /\(NBEMS\)\s*PLASTIC\s*AND\s*RECONSTRUCTIVE\s*SURGERY/i, 
+        standard: '(NBEMS) Plastic and Reconstructive Surgery (Direct 6 Years Course)' 
     },
-    {
-        pattern: /PAEDIATRIC\s*SURGERY|PEDIATRIC\s*SURGERY/i,
-        standard: 'M.Ch (Paediatric Surgery 6 Years)'
+    { 
+        pattern: /(PLASTIC.*RECONSTRUCTIVE.*6\s*YEARS)|(BURNS?.*PLASTIC\s*SURGERY.*6\s*YEARS)/i, 
+        standard: 'M.Ch (Plastic & Reconstructive Surgery 6 Years)' 
     },
-    {
-        pattern: /SURGICAL\s*GASTROENTEROLOGY|GASTRO\s*SURGERY/i,
-        standard: 'M.Ch (Surgical Gastroenterology 6 Years)'
+    { 
+        pattern: /P[AE]+DIATRIC\s*SURGERY.*(M\.?CH|6\s*YEAR)/i, 
+        standard: 'M.Ch (Paediatric Surgery 6 Years)' 
     },
-    {
-        pattern: /UROLOGY/i,
-        standard: 'M.Ch (Urology 6 Years)'
+    { 
+        pattern: /INFECTIOUS\s*DISEASES.*(DM|6\s*YEAR)/i, 
+        standard: 'DM (Infectious Diseases 6 Years)' 
     },
-    {
-        pattern: /TRAUMA\s*(AND|&)?\s*(EMERGENCY|SURGERY)|TRAUMA\s*SURGERY\s*(AND|&)?\s*CRITICAL/i,
-        standard: 'M.Ch (Trauma Surgery & Critical Care 6 Years)'
+    { 
+        pattern: /TRAUMA\s*SURGERY\s*(\&|AND)\s*CRITICAL\s*CARE.*6\s*YEARS/i, 
+        standard: 'M.Ch (Trauma Surgery & Critical Care 6 Years)' 
     },
-    {
-        pattern: /NEUROLOGY\s*\(?DM|DM\s*\(?NEUROLOGY/i,
-        standard: 'DM (Neurology 6 Years)'
-    },
-    {
-        pattern: /INFECTIOUS\s*DISEASES\s*\(?DM|DM\s*\(?INFECTIOUS/i,
-        standard: 'DM (Infectious Diseases 6 Years)'
+    { 
+        pattern: /MS\.?\s*\(?\s*TRAUMATOLOGY\s*(AND|\&)\s*SURGERY\s*\)?|TRAUMA\s*(AND|\&)\s*EMERGENCY|TRAUMA\s*SURGERY|TRAUMATOLOGY\s*(AND|\&)\s*SURGERY/i, 
+        standard: 'MS (Trauma & Emergency Surgery)' 
     },
 
-    // ========== RADIOLOGY ==========
-    {
-        pattern: /RADIO\s*-?\s*DIAGNOS(?:IS|IS)|RADIODIAGNOSIS|DIAGNOSTIC\s*(AND|&)?\s*INTERVENTIONAL\s*RADIOLOGY/i,
-        standard: 'MD (Radiodiagnosis)'
+    // -------------------------------------------------------------
+    // OPHTHALMOLOGY (Fixes 3+ duplicate names)
+    // -------------------------------------------------------------
+    { 
+        pattern: /DIPLOMA\s*IN\s*\(?OPHTHALMOLOGY\)?/i, 
+        standard: 'Diploma in (Ophthalmology)' 
     },
-    {
-        pattern: /RADIO\s*-?\s*DIAGNOS(?:IS|IS).*INTERVENTIONAL|INTERVENTIONAL\s*RADIOLOGY/i,
-        standard: 'MD (Radiodiagnosis & Interventional Radiology)'
+    { 
+        pattern: /\(NBEMS\)\s*OPHTHALMOLOGY/i, 
+        standard: '(NBEMS) Ophthalmology' 
     },
-    {
-        pattern: /\(NBEMS-?DIPLOMA\).*RADIO|DIPLOMA.*RADIO\s*-?\s*DIAGNOS|DIP\.?\s*IN\s*MEDICAL\s*RADIO/i,
-        standard: '(NBEMS-Diploma) Radio-Diagnosis'
-    },
-    {
-        pattern: /RADIATION\s*ONCOLOGY|RADIOTHERAPY|RADIO\s*-?\s*THERAPY/i,
-        standard: 'MD (Radiation Oncology)'
-    },
-    {
-        pattern: /DIP\.?\s*IN\s*MEDICAL\s*RADIO\s*-?\s*THERAPY|DIPLOMA.*RADIO\s*-?\s*THERAPY/i,
-        standard: 'Diploma in Medical Radiotherapy'
-    },
-    {
-        pattern: /DIP\.?\s*IN\s*RADIATION\s*MEDICINE|DIPLOMA.*RADIATION\s*MEDICINE/i,
-        standard: 'Diploma in Radiation Medicine'
-    },
-    {
-        pattern: /^RADIOLOGY$/i,
-        standard: 'MD (Radiodiagnosis)'
+    { 
+        pattern: /(MS\.?\s*\(?)?OPHTHALMOLOGY\)?/i, 
+        standard: 'MS (Ophthalmology)' 
     },
 
-    // ========== ANAESTHESIOLOGY ==========
-    {
-        pattern: /ANAESTHESIOLOG|ANESTHESIOLOG|ANAESTHESIA|ANESTHESIA/i,
-        standard: 'MD (Anaesthesiology)'
+    // -------------------------------------------------------------
+    // RADIODIAGNOSIS & IMAGING
+    // -------------------------------------------------------------
+    { 
+        pattern: /DIAGNOSTIC\s*(\&|AND)\s*INTERVENTIONAL\s*RADIOLOGY/i, 
+        standard: 'Diagnostic & Interventional Radiology' 
     },
-    {
-        pattern: /\(NBEMS-?DIPLOMA\).*ANAESTH|\(NBEMS\).*ANAESTH|DIPLOMA.*ANAESTH/i,
-        standard: '(NBEMS-Diploma) Anaesthesiology'
+    { 
+        pattern: /\(NBEMS(-?\s*DIPLOMA)?\s*\)\s*RADIODIAGNOSIS|DIP(\.|LOMA)?(\s*IN)?\s*MEDICAL\s*RADIODIAGNOSIS/i, 
+        standard: '(NBEMS-Diploma) Radio-Diagnosis' 
     },
-    {
-        pattern: /ANAESTHESIA\s*(AND|&)?\s*(CRITICAL|INTENSIVE)\s*CARE/i,
-        standard: 'MD (Anaesthesiology)'
-    },
-
-    // ========== FAMILY / COMMUNITY / PSM ==========
-    {
-        pattern: /COMMUNITY\s*(AND|&)?\s*FAMILY\s*MEDICINE|^CFM$|^CMFM$/i,
-        standard: 'MD (Community and Family Medicine)'
-    },
-    {
-        pattern: /FAMILY\s*MEDICINE/i,
-        standard: 'MD (Family Medicine)'
-    },
-    {
-        pattern: /\(NBEMS-?DIPLOMA\).*FAMILY|\(NBEMS\).*FAMILY/i,
-        standard: '(NBEMS-Diploma) Family Medicine'
-    },
-    {
-        pattern: /COMMUNITY\s*MEDICINE|PREVENTIVE.*SOCIAL|PSM|COMMUNITY\s*HEALTH/i,
-        standard: 'MD (Community Medicine)'
-    },
-    {
-        pattern: /PUBLIC\s*HEALTH|DIPLOMA.*PUBLIC\s*HEALTH/i,
-        standard: 'Diploma in Public Health'
-    },
-    {
-        pattern: /M\.?P\.?H\.?|EPIDEMIOLOGY/i,
-        standard: 'M.P.H. (Epidemiology)'
+    { 
+        pattern: /(MD\.?\s*\(?)?(RADIODIAGNOSIS\s*(\&|AND)\s*INTERN?VENTIONAL\s*RADIOLOGY|RADIODIAGNOSIS|\bRADIOLOGY\b)/i, 
+        standard: 'MD (Radiodiagnosis)' 
     },
 
-    // ========== ENT ==========
-    {
-        pattern: /\bENT\b|OTORHINOLARYNGOLOG|E\.?\s*N\.?\s*T\.?/i,
-        standard: 'MS (ENT)'
+    // -------------------------------------------------------------
+    // ANAESTHESIOLOGY
+    // -------------------------------------------------------------
+    { 
+        pattern: /\(NBEMS(-?\s*DIPLOMA)?\)\s*ANAESTHESIOLOGY|\(NBEMS\)\s*ANAESTHESIOLOGY/i, 
+        standard: '(NBEMS-Diploma) Anaesthesiology' 
     },
-    {
-        pattern: /DIPLOMA.*ENT|DIPLOMA.*OTO|DLO/i,
-        standard: 'Diploma in ENT (Otorhinolaryngology)'
-    },
-
-    // ========== OPHTHALMOLOGY ==========
-    {
-        pattern: /OPHTHALMOLOG/i,
-        standard: 'MS (Ophthalmology)'
-    },
-    {
-        pattern: /DIPLOMA.*OPHTHAL|DOMS?/i,
-        standard: 'Diploma in Ophthalmology'
+    { 
+        pattern: /(MD\.?\s*\(?)?ANAESTHESIOLOGY\b|ANAESTHESIA(\s*(\&|AND)\s*(CRITICAL\s*CARE|INTENSIVE\s*CARE))?/i, 
+        standard: 'MD (Anaesthesiology)' 
     },
 
-    // ========== OBSTETRICS & GYNAECOLOGY ==========
-    {
-        pattern: /OBSTETRICS.*GYNAEC|OBST\.?\s*(AND|&)?\s*GYNAE|OBGYN|OBS\.?\s*(AND|&)?\s*GYN/i,
-        standard: 'MS (Obstetrics & Gynaecology)'
+    // -------------------------------------------------------------
+    // ORTHOPAEDICS
+    // -------------------------------------------------------------
+    { 
+        pattern: /DIPLOMA\s*IN\s*ORTHOPAEDICS|\(NBEMS\)\s*ORTHOPAEDICS/i, 
+        standard: '(NBEMS-Diploma) Orthopaedics' 
     },
-    {
-        pattern: /DIPLOMA.*OBST|DIPLOMA.*GYNAE|DGO/i,
-        standard: 'Diploma in Obstetrics & Gynaecology (DGO)'
-    },
-    {
-        pattern: /^OBST\.?\s*(AND|&)?\s*GYNAE$/i,
-        standard: 'MS (Obstetrics & Gynaecology)'
+    { 
+        pattern: /(MS\.?\s*\(?)?(ORTHOPAEDICS|ORTHOPAEDIC\s*SURGERY)\)?/i, 
+        standard: 'MS (Orthopaedics)' 
     },
 
-    // ========== ORTHOPAEDICS ==========
-    {
-        pattern: /ORTHOPAEDIC|ORTHOPEDIC|ORTHOP\s*AEDICS/i,
-        standard: 'MS (Orthopaedics)'
+    // -------------------------------------------------------------
+    // PAEDIATRICS
+    // -------------------------------------------------------------
+    { 
+        pattern: /\(NBEMS\)\s*PAEDIATRICS/i, 
+        standard: '(NBEMS) Paediatrics' 
     },
-    {
-        pattern: /DIPLOMA.*ORTHOP/i,
-        standard: 'Diploma in Orthopaedics'
-    },
-
-    // ========== PHYSICAL MEDICINE & REHABILITATION ==========
-    {
-        pattern: /PHYSICAL\s*MED(?:ICINE)?|PMR|PHY\.?\s*MED/i,
-        standard: 'MD (Physical Medicine & Rehabilitation)'
-    },
-    {
-        pattern: /\(NBEMS.*PHYSICAL|DIPLOMA.*PHYSICAL\s*MED/i,
-        standard: '(NBEMS-Diploma) Physical Medicine & Rehabilitation'
+    { 
+        pattern: /(MD\.?\s*\(?)?PAEDIATRICS\)?/i, 
+        standard: 'MD (Paediatrics)' 
     },
 
-    // ========== CORE CLINICAL ==========
-    { pattern: /GENERAL\s*MEDICINE|INTERNAL\s*MEDICINE|^MEDICINE$/i, standard: 'MD (General Medicine)' },
-    { pattern: /GENERAL\s*SURGERY|^SURGERY$/i, standard: 'MS (General Surgery)' },
-    { pattern: /PAEDIATRICS|PEDIATRICS/i, standard: 'MD (Paediatrics)' },
-    { pattern: /DERMATOLOGY|DVL|VENEREOLOGY|LEPROSY|SKIN/i, standard: 'MD (Dermatology, Venereology & Leprosy)' },
-    { pattern: /PSYCHIATRY|PSYCHOLOGICAL\s*MEDICINE|PSYCHIATRIC\s*MEDICINE/i, standard: 'MD (Psychiatry)' },
-    { pattern: /EMERGENCY\s*MEDICINE|EMERGENCY\s*(AND|&)?\s*CRITICAL|TRAUMA\s*(AND|&)?\s*EMERGENCY/i, standard: 'MD (Emergency Medicine)' },
-    { pattern: /GERIATRIC/i, standard: 'MD (Geriatrics)' },
-    { pattern: /PALLIATIVE/i, standard: 'MD (Palliative Medicine)' },
-    { pattern: /TROPICAL\s*MEDICINE/i, standard: 'MD (Tropical Medicine)' },
-    { pattern: /SPORTS\s*MEDICINE/i, standard: 'MD (Sports Medicine)' },
-    { pattern: /AEROSPACE\s*MEDICINE/i, standard: 'MD (Aerospace Medicine)' },
-    { pattern: /NUCLEAR\s*MEDICINE/i, standard: 'MD (Nuclear Medicine)' },
-    { pattern: /RESPIRATORY|PULMONARY|TUBERCULOSIS|CHEST\s*MEDICINE|T\.?B\.?\s*(AND|&)?\s*CHEST/i, standard: 'MD (Respiratory Medicine)' },
-    { pattern: /TRANSFUSION|IMMUNOHEMATOLOGY|BLOOD\s*TRANSFUSION/i, standard: 'MD (Transfusion Medicine)' },
-    { pattern: /HOSPITAL\s*ADMINISTRATION|HEALTH\s*ADMINISTRATION/i, standard: 'MD (Hospital Administration)' },
-    { pattern: /LAB(?:ORATORY)?\s*MEDICINE/i, standard: 'MD (Laboratory Medicine)' },
+    // -------------------------------------------------------------
+    // ENT / OTORHINOLARYNGOLOGY
+    // -------------------------------------------------------------
+    { 
+        pattern: /DIPLOMA\s*IN\s*\(?ENT\)?|DIPLOMA\s*IN\s*OTO-?\s*RHINO-?\s*LARYNGOLOGY|\(NBEMS\)\s*OTORHINOLARYNGOLOGY/i, 
+        standard: 'Diploma in ENT (Otorhinolaryngology)' 
+    },
+    { 
+        pattern: /MS\.?\s*\(?E\.?N\.?T\.?\)?|MS\s*\(ENT\)/i, 
+        standard: 'MS (ENT)' 
+    },
 
-    // ========== PARA CLINICAL / BASIC ==========
-    { pattern: /PATHOLOGY/i, standard: 'MD (Pathology)' },
-    { pattern: /MICROBIOLOGY|BACTERIOLOGY/i, standard: 'MD (Microbiology)' },
-    { pattern: /PHARMACOLOGY/i, standard: 'MD (Pharmacology)' },
+    // -------------------------------------------------------------
+    // GENERAL MEDICINE & SURGERY
+    // -------------------------------------------------------------
+    { 
+        pattern: /(MD\.?\s*\(?)?(GENERAL\s*MEDICINE|INTERNAL\s*MEDICINE)\)?|^MEDICINE$/i, 
+        standard: 'MD (General Medicine)' 
+    },
+    { 
+        pattern: /(MS\.?\s*\(?)?GENERAL\s*SURGERY\)?|^SURGERY$/i, 
+        standard: 'MS (General Surgery)' 
+    },
+    { 
+        pattern: /DIPLOMA\s*IN\/DIPLOMA\s*IN\s*\(OBSTETRICS\s*\&\s*GYNAECOLOGY\)|DIP\.IN\s*GYNAE\.\s*(AND|\&)\s*OBST\./i, 
+        standard: 'Diploma in Obstetrics & Gynaecology (DGO)' 
+    },
+    { 
+        pattern: /OBSTETRICS.*GYNAECOLOGY|OBGYN|OBS.*GYN|^OBG$/i, 
+        standard: 'MS (Obstetrics & Gynaecology)' 
+    },
+
+    // -------------------------------------------------------------
+    // FAMILY & COMMUNITY MEDICINE
+    // -------------------------------------------------------------
+    { 
+        pattern: /\(NBEMS(-?\s*DIPLOMA)?\)\s*FAMILY\s*MEDICINE/i, 
+        standard: '(NBEMS-Diploma) Family Medicine' 
+    },
+    { 
+        pattern: /^(MD\.?\s*\(?)?FAMILY\s*MEDICINE\)?$/i, 
+        standard: 'MD (Family Medicine)' 
+    },
+    { 
+        pattern: /COMMUNITY\s*(AND|\&)\s*FAMILY\s*MEDICINE|^CFM$|^CMFM$|COMMUNITY\s*MEDICINE|MD\.?\s*\(?COMMUNITY\s*HEALTH\s*AND\s*ADMN\.?\)?/i, 
+        standard: 'MD (Community Medicine)' 
+    },
+
+    // -------------------------------------------------------------
+    // OTHER CORE SPECIALTIES
+    // -------------------------------------------------------------
+    { pattern: /(MD\.?\s*\(?)?EMERGENCY(\s*(AND\s*CRITICAL\s*CARE|MEDICINE))?\)?/i, standard: 'MD (Emergency Medicine)' },
+    { pattern: /\(NBEMS\)\s*PHYSICAL\s*MED|DIP\.\s*IN\s*PHY\.\s*MEDICINE/i, standard: '(NBEMS-Diploma) Physical Medicine & Rehabilitation' },
+    { pattern: /(MD\.?\s*\(?)?PHYSICAL\s*MED.*REHABILITATION\)?|PMR/i, standard: 'MD (Physical Medicine & Rehabilitation)' },
+    { pattern: /PG\s*DIPLOMA.*PSYCH(IATRIC|OLOGICAL)\s*MEDICINE|\(NBEMS\)\s*PSYCHIATRY/i, standard: '(NBEMS-Diploma) Psychiatry' },
+    { pattern: /(MD\.?\s*\(?)?PSYCHIATRY\)?/i, standard: 'MD (Psychiatry)' },
+    { pattern: /(MD\.?\s*\(?)?PATHOLOGY\)?/i, standard: 'MD (Pathology)' },
+    { pattern: /(MD\.?\s*\(?)?MICROBIOLOGY\)?/i, standard: 'MD (Microbiology)' },
+    { pattern: /(MD\.?\s*\(?)?PHARMACOLOGY\)?/i, standard: 'MD (Pharmacology)' },
+    { pattern: /(MD\.?\s*\(?)?BIOCHEMISTRY\)?/i, standard: 'MD (Biochemistry)' },
+    { pattern: /FORENSIC\s*MEDICINE|^FMT$/i, standard: 'MD (Forensic Medicine)' },
+    { pattern: /(MD\.?\s*\(?|MD\.\s*IN\s*)NUCLEAR\s*MEDICINE\)?/i, standard: 'MD (Nuclear Medicine)' },
+    { pattern: /^(MD\.?\s*)?GERIATRICS(\s*MEDICINE)?$/i, standard: 'MD (Geriatric Medicine)' },
+    { pattern: /^(MD\.?\s*\(?)?PALLIATIVE\s*MEDICINE\)?$/i, standard: 'MD (Palliative Medicine)' },
+    { pattern: /MD\.?\s*\(?TROPICAL\s*MEDICINE\)?/i, standard: 'MD (Tropical Medicine)' },
+    { pattern: /DIP\.\s*IN\s*MEDICAL\s*RADIO-?\s*THERAPY/i, standard: 'Diploma in Medical Radiotherapy' },
+    { pattern: /RADIATION ONCOLOGY|RADIOTHERAPY/i, standard: 'MD (Radiation Oncology)' },
+    { pattern: /DERMATOLOGY|DVL|VENEREOLOGY|LEPROSY/i, standard: 'MD (Dermatology, Venereology & Leprosy)' },
     { pattern: /PHYSIOLOGY/i, standard: 'MD (Physiology)' },
     { pattern: /ANATOMY/i, standard: 'MD (Anatomy)' },
-    { pattern: /BIOCHEMISTRY/i, standard: 'MD (Biochemistry)' },
-    { pattern: /FORENSIC|FMT/i, standard: 'MD (Forensic Medicine)' },
-    { pattern: /BIOPHYSICS/i, standard: 'MD (Biophysics)' },
+    { pattern: /PULMONARY MEDICINE|RESPIRATORY|TUBERCULOSIS|CHEST MEDICINE/i, standard: 'MD (Respiratory Medicine)' },
+    { pattern: /HOSPITAL ADMINISTRATION/i, standard: 'MD (Hospital Administration)' },
+    { pattern: /IMMUNOHEMATOLOGY|BLOOD TRANSFUSION|TRANSFUSION MEDICINE/i, standard: 'MD (Transfusion Medicine)' },
 
-    // ========== DENTAL (if present) ==========
+    // -------------------------------------------------------------
+    // DENTAL (MDS)
+    // -------------------------------------------------------------
     { pattern: /CONSERVATIVE\s*DENTISTRY|ENDODONTICS/i, standard: 'MDS (Conservative Dentistry & Endodontics)' },
-    { pattern: /ORAL\s*(AND|&)?\s*MAXILLOFACIAL/i, standard: 'MDS (Oral & Maxillofacial Surgery)' },
-    { pattern: /ORTHODONTICS/i, standard: 'MDS (Orthodontics)' },
-    { pattern: /PEDODONTICS|PAEDIATRIC\s*DENTISTRY/i, standard: 'MDS (Pedodontics & Preventive Dentistry)' },
-    { pattern: /PERIODONTICS|PERIODONTOLOGY/i, standard: 'MDS (Periodontology)' },
-    { pattern: /PROSTHODONTICS/i, standard: 'MDS (Prosthodontics)' },
-    { pattern: /PUBLIC\s*HEALTH\s*DENTISTRY/i, standard: 'MDS (Public Health Dentistry)' },
-
-    // ========== NBEMS generic catch-alls (keep last among NBEMS) ==========
-    {
-        pattern: /\(NBEMS\).*GENERAL\s*MEDICIN/i,
-        standard: '(NBEMS) General Medicine'
-    },
-    {
-        pattern: /\(NBEMS\).*GENERAL\s*SURGER/i,
-        standard: '(NBEMS) General Surgery'
-    },
-    {
-        pattern: /\(NBEMS\).*PAEDIAT/i,
-        standard: '(NBEMS) Paediatrics'
-    },
-    {
-        pattern: /\(NBEMS\).*ORTHOP/i,
-        standard: '(NBEMS) Orthopaedics'
-    },
-    {
-        pattern: /\(NBEMS\).*OPHTHAL/i,
-        standard: '(NBEMS) Ophthalmology'
-    },
-    {
-        pattern: /\(NBEMS\).*OBSTETRICS|\(NBEMS\).*GYNAEC/i,
-        standard: '(NBEMS) Obstetrics & Gynaecology'
-    },
-    {
-        pattern: /\(NBEMS\).*OTORHINOLARYNGO|\(NBEMS\).*E\.?N\.?T/i,
-        standard: '(NBEMS) ENT'
-    },
-    {
-        pattern: /\(NBEMS\).*PSYCHIAT/i,
-        standard: '(NBEMS) Psychiatry'
-    },
-    {
-        pattern: /\(NBEMS\).*RESPIRATOR/i,
-        standard: '(NBEMS) Respiratory Medicine'
-    },
-    {
-        pattern: /\(NBEMS\).*NUCLEAR/i,
-        standard: '(NBEMS) Nuclear Medicine'
-    },
-    {
-        pattern: /\(NBEMS\).*GERIATRIC/i,
-        standard: '(NBEMS) Geriatric Medicine'
-    },
-    {
-        pattern: /\(NBEMS\).*PALLIATIVE/i,
-        standard: '(NBEMS) Palliative Medicine'
-    },
-    {
-        pattern: /\(NBEMS\).*EMERGENC/i,
-        standard: '(NBEMS) Emergency Medicine'
-    }
+    { pattern: /PERIODONT(ICS|OLOGY)/i, standard: 'MDS (Periodontics & Periodontology)' },
+    { pattern: /PROSTHODONT/i, standard: 'MDS (Prosthodontics)' },
+    { pattern: /ORTHODONT/i, standard: 'MDS (Orthodontics)' },
+    { pattern: /PEDODONT/i, standard: 'MDS (Pedodontics)' },
+    { pattern: /ORAL & MAXILLOFACIAL/i, standard: 'MDS (Oral & Maxillofacial Surgery)' },
+    { pattern: /PUBLIC HEALTH DENTISTRY/i, standard: 'MDS (Public Health Dentistry)' }
 ];
 
 function normalizeCourseName(raw) {
     if (!raw) return "N/A";
+    let str = raw.trim();
 
-    // 1. Aggressive pre-cleaning of broken PDF/OCR text
-    let str = raw
-        .replace(/\u00A0/g, ' ')                    // non-breaking space
-        .replace(/[^\x20-\x7E]/g, ' ')              // non-ascii → space
-        .replace(/\s+/g, ' ')                       // collapse spaces
-        .replace(/\(\s+/g, '(')
-        .replace(/\s+\)/g, ')')
-        .replace(/\.\s+/g, '.')
-        .replace(/\s+\./g, '.')
-        .replace(/\s*-\s*/g, '-')
-        .trim();
+    // 🚀 STEP 1: OCR SPACE-COLLAPSER (Fixes broken words from PDF extraction)
+    let cleaned = str
+        .replace(/OPHTHA?\s*L\s*MOLO?\s*G\s*Y?/gi, 'OPHTHALMOLOGY')
+        .replace(/ANAEST?\s*H?\s*ESIOL?\s*O?\s*G\s*Y?/gi, 'ANAESTHESIOLOGY')
+        .replace(/RADIO\s*-\s*DIAGNOS\s*I?\s*S?/gi, 'RADIODIAGNOSIS')
+        .replace(/ORTHOP\s*A?\s*EDIC\s*S?/gi, 'ORTHOPAEDICS')
+        .replace(/PAEDIAT\s*I?\s*R\s*I?CS/gi, 'PAEDIATRICS')
+        .replace(/PSYCHIA\s*TRY/gi, 'PSYCHIATRY')
+        .replace(/MICROBIOLOG\s*Y/gi, 'MICROBIOLOGY')
+        .replace(/PHARMA\s*COLO?\s*G\s*Y/gi, 'PHARMACOLOGY')
+        .replace(/PATHOL\s*OGY/gi, 'PATHOLOGY')
+        .replace(/BIOCHEN?\s*MISTRY/gi, 'BIOCHEMISTRY')
+        .replace(/GENERA\s*L\s*MEDICIN\s*E?/gi, 'GENERAL MEDICINE')
+        .replace(/GENERA\s*L\s*SURGER\s*Y?/gi, 'GENERAL SURGERY')
+        .replace(/RECONSTRU\s*CTIVE/gi, 'RECONSTRUCTIVE')
+        .replace(/GERIATRI\s*C\s*S?/gi, 'GERIATRICS')
+        .replace(/REHABILITATIO\s*N?/gi, 'REHABILITATION')
+        .replace(/EMERGEN\s*C\s*Y/gi, 'EMERGENCY')
+        .replace(/OTORHINOLARYNGOL\s*OGY/gi, 'OTORHINOLARYNGOLOGY')
+        .replace(/TROPICA\s*L\s*MEDICIN\s*E?/gi, 'TROPICAL MEDICINE');
 
-    // 2. Dictionary match (first hit wins)
+    // 🚀 STEP 2: DICTIONARY MATCHING
     for (const item of COURSE_DICTIONARY) {
-        if (item.pattern.test(str)) {
+        if (item.pattern.test(cleaned) || item.pattern.test(str)) {
             return item.standard;
         }
     }
 
-    // 3. Fallback title-case cleanup
+    // STEP 3: CLEAN FALLBACK
     return str
+        .replace(/\s+/g, ' ')
         .replace(/\bM\.?D\.?\b/gi, 'MD')
         .replace(/\bM\.?S\.?\b/gi, 'MS')
         .replace(/\bD\.?N\.?B\.?\b/gi, 'DNB')
-        .replace(/\bM\.?Ch\.?\b/gi, 'M.Ch')
-        .replace(/\bDM\b/gi, 'DM')
-        .replace(/\w\S*/g, t => t.charAt(0).toUpperCase() + t.slice(1).toLowerCase());
+        .replace(/\w\S*/g, t => t.charAt(0).toUpperCase() + t.substr(1).toLowerCase());
 }
-
         const QUOTA_DICTIONARY = [
             { pattern: /INI-?CET.*INSTITUTIONAL|AIIMS.*INTERNAL|INSTITUTIONAL.*PREFERENCE/i, standard: 'INI-CET (Institutional / Internal Quota)' },
             { pattern: /JIPMER.*INTERNAL|JIPMER.*QUOTA/i, standard: 'INI-CET (JIPMER Internal Quota)' },
