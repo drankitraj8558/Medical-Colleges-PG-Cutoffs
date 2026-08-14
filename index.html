@@ -699,23 +699,7 @@
 
         // 🩺 HIGH-PRECISION COURSE NORMALIZER & DICTIONARY
         const COURSE_DICTIONARY = [
-            // RULE 7: CTVS 6 Years
-            { 
-                pattern: /CARDIOTHORA[CS]IC\s*(AND|\&)?\s*VASCULAR\s*SURGERY\s*\(M\.CH\s*6\s*YEARS\)/i, 
-                standard: 'M.Ch (Cardiothoracic & Vascular Surgery 6 Years)' 
-            },
-
-            // RULE 8: Neurosurgery 6 Years
-            { 
-                pattern: /M\.CH\.?\s*\(NEURO\s*SURGERY\)|NEURO\s*SURGERY\s*\(M\.CH\s*6\s*YEARS\)/i, 
-                standard: 'M.Ch (Neurosurgery 6 Years)' 
-            },
-
-            // RULE 9: Plastic & Reconstructive & Burns Surgery 6 Years
-            { 
-                pattern: /PLASTIC\s*(AND|\&|\,)?\s*RECONSTRUCTIVE\s*(\&|AND)?\s*(BURNS\s*)?SURGERY\s*\(M\.CH\s*6\s*YEARS\)/i, 
-                standard: 'M.Ch (Plastic & Reconstructive Surgery 6 Years)' 
-            },
+       
 
             // RULE 3: Radio-Diagnosis & Interventional Radiology
             { 
@@ -726,10 +710,7 @@
                 pattern: /\(NBEMS-?DIPLOMA\)\s*RADIO-?\s*DIAGNOSIS|DIPLOMA\s*IN\s*\(?RADIODIAGNOSIS\)?|DIPLOMA\s*IN\s*MEDICAL\s*RADIO-?\s*DIAGNOSIS|\(NBEMS\)\s*RADIO-?\s*DIAGNOSIS|DIP\.IN\s*MEDICAL\s*RADIO\s*-\s*DIAGNOSIS/i, 
                 standard: '(NBEMS-Diploma) Radio-Diagnosis' 
             },
-            { 
-                pattern: /MD\.?\s*\(?RADIO-?\s*DIAGNOSIS\)?|RADIO-?DIAGNOSIS/i, 
-                standard: 'MD (Radiodiagnosis)' 
-            },
+      
 
             // RULE 11: Radiotherapy Diploma & MD Radiation Oncology
             { 
@@ -774,8 +755,7 @@
             },
             { 
                 pattern: /COMMUNITY MEDICINE|PREVENTIVE.*SOCIAL/i, 
-        // 🩺 HIGH-PRECISION COURSE NORMALIZER & DICTIONARY
-        const COURSE_DICTIONARY = [
+   
             // -------------------------------------------------------------
             // GROUP 28: CTVS 6 Years (Merge 28a, 28c, 28d, 28e)
             // -------------------------------------------------------------
