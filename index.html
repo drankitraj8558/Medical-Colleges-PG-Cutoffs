@@ -1099,6 +1099,9 @@
                 .replace(/\bD\.?N\.?B\.?\b/gi, 'DNB')
                 .replace(/\w\S*/g, t => t.charAt(0).toUpperCase() + t.substr(1).toLowerCase());
         }
+if (item.Display_Course && !/^(AIIMS|PGIMER)/i.test(item.Display_Course)) {
+    courses.add(item.Display_Course);
+}
 
 
         const QUOTA_DICTIONARY = [
